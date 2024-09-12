@@ -4,7 +4,7 @@
     "resources/**/*.ts",
     "resources/**/*.d.ts",
     "resources/**/*.vue"
-, "resources/js/components/configurator/lightSetup.js"  ],
+, "resources/js/components/configurator/lightSetup.js", "resources/js/components/configurator/dragModelListener.js"  ],
   "compilerOptions": {
     "allowJs": true,
     "strict": false,

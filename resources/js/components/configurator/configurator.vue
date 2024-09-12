@@ -10,12 +10,17 @@ import * as THREE from "three";
 import { ref, onMounted, reactive } from "vue";
 import { setupLights } from "./lightSetup";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-
+import { dragModelListener } from "./dragModelListener";
 // const props = defineProps({
 
 //     addFurniture: Object,
 
 // });
+
+const state = reactive({
+    firstModel: [],
+    latestModel: [],
+});
 
 let scene;
 
@@ -63,13 +68,42 @@ onMounted(() => {
     floor.receiveShadow = false;
     // floor.receiveShadow = true;
     scene.add(floor);
+    function updateModel(id, rotY, x, z) {
+        const proxyObject = configurationObj.models;
+        let modelToUpdate;
+
+        const models = toRaw(proxyObject);
+        modelToUpdate = Object.keys(models)
+            .map((key) => models[key])
+            .find((obj) => obj && obj.idString === id);
+
+        if (modelToUpdate) {
+            modelToUpdate.rotation.y = rotY;
+            modelToUpdate.position.x = x;
+            modelToUpdate.position.z = z;
+        }
+        // this.$emit('updateConfiguration', configurationObj)
+    }
+    const raycaster = new THREE.Raycaster();
+    let clickMouse = new THREE.Vector2();
+    let moveMouse = new THREE.Vector2();
+    dragModelListener(
+        raycaster,
+        clickMouse,
+        moveMouse,
+        camera,
+        scene,
+        controls,
+        state.latestModel,
+        updateModel
+    );
 
     renderer.setAnimationLoop(animate);
     function animate() {
-
         renderer.render(scene, camera);
     }
 });
+
 function loadGLBModel(gltfloader, scene) {
     gltfloader.load(
         "/assets/CORNER LEFT_BLACK_059_VEGA_SAND_DUNE", // Update the path to match your server configuration
