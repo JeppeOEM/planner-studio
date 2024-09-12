@@ -4,7 +4,7 @@
     "resources/**/*.ts",
     "resources/**/*.d.ts",
     "resources/**/*.vue"
-  ],
+, "resources/js/components/configurator/lightSetup.js"  ],
   "compilerOptions": {
     "allowJs": true,
     "strict": false,

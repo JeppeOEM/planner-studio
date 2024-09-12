@@ -7,7 +7,30 @@
 <script setup>
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import * as THREE from "three";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, reactive } from "vue";
+import { setupLights } from "./lightSetup";
+
+const props = defineProps({
+    // sessionData: Object,
+    // position: Object,
+    addFurniture: Object,
+    // color: String,
+    // type: String,
+});
+
+// Reactive state
+const isVisible = ref(false);
+const modelsLeft = ref([]);
+const modelsRight = ref([]);
+const firstModel = ref([]);
+const connectionCornerLeft = ref(false);
+const latestModel = ref([]);
+// Using the reactive instead of ref when working with objects
+const configurationObj = reactive({
+    models: [],
+    componentIds: [],
+});
+
 onMounted(() => {
     function onWindowResize() {
         camera.aspect = canvas.clientWidth / canvas.clientHeight;
@@ -30,37 +53,35 @@ onMounted(() => {
     const renderer = new THREE.WebGLRenderer({ canvas });
     renderer.setPixelRatio(window.devicePixelRatio); //sets same amount pixels as window
     renderer.setSize(width, height);
+
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.target.set(0, 0.8, 0); //point its orbitting around
     controls.maxPolarAngle = Math.PI / 2.4; // Restrict the vertical rotation to 90 degrees
     controls.enableDamping = true;
     controls.dampingFactor = 0.15;
     controls.maxDistance = 80;
-
     controls.update();
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.1); // Color: white, Intensity: 0.5
-    scene.add(ambientLight);
 
-    const dimIntensity = 1.5; // Adjust the intensity to control the dimness
+    // Lights
+    setupLights(scene);
 
-    // Light 1
-    const directionalLight1 = new THREE.DirectionalLight(
-        0xffffff,
-        dimIntensity
+    // Floor
+    let floor = new THREE.Mesh(
+        new THREE.BoxGeometry(1000, 0.01, 1000),
+        new THREE.MeshBasicMaterial({ color: 0xe5e5e7 })
+        // new THREE.MeshBasicMaterial({ color: 0xffffff })
     );
-    directionalLight1.position.set(200, 10, 0);
-    directionalLight1.target.position.set(0, 0, 0); // Set the target position to the center of the scene
-    scene.add(directionalLight1);
-    renderer.setAnimationLoop(animate);
-    // document.body.appendChild(renderer.domElement);
+    floor.isDraggable = false;
+    floor.receiveShadow = false;
+    // floor.receiveShadow = true;
+    scene.add(floor);
 
     const geometry = new THREE.BoxGeometry(1, 1, 1);
     const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
     const cube = new THREE.Mesh(geometry, material);
     scene.add(cube);
 
-    camera.position.z = 5;
-
+    renderer.setAnimationLoop(animate);
     function animate() {
         cube.rotation.x += 0.01;
         cube.rotation.y += 0.01;
@@ -70,14 +91,10 @@ onMounted(() => {
 });
 </script>
 
-
 <style scoped>
-
 .canvasDom {
     width: 100vw;
     height: 100vh;
     z-index: 0;
 }
-
-
 </style>
