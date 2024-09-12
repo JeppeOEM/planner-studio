@@ -1,6 +1,6 @@
 <template>
     <h2>hej</h2>
-
+    <button @click="loaderglb(scene)">Load GLB Model</button>
     <canvas class="canvasDom"></canvas>
 </template>
 
@@ -9,27 +9,15 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import * as THREE from "three";
 import { ref, onMounted, reactive } from "vue";
 import { setupLights } from "./lightSetup";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
-const props = defineProps({
-    // sessionData: Object,
-    // position: Object,
-    addFurniture: Object,
-    // color: String,
-    // type: String,
-});
+// const props = defineProps({
 
-// Reactive state
-const isVisible = ref(false);
-const modelsLeft = ref([]);
-const modelsRight = ref([]);
-const firstModel = ref([]);
-const connectionCornerLeft = ref(false);
-const latestModel = ref([]);
-// Using the reactive instead of ref when working with objects
-const configurationObj = reactive({
-    models: [],
-    componentIds: [],
-});
+//     addFurniture: Object,
+
+// });
+
+let scene;
 
 onMounted(() => {
     function onWindowResize() {
@@ -42,7 +30,7 @@ onMounted(() => {
     let width = canvas.clientWidth;
     let height = canvas.clientHeight;
     let aspect = width / height;
-    const scene = new THREE.Scene();
+    scene = new THREE.Scene();
     scene.background = new THREE.Color(0xf8f8f8);
     const camera = new THREE.PerspectiveCamera(75, aspect);
     camera.position.z = 0; // Move the camera backward along the z-axis
@@ -76,19 +64,58 @@ onMounted(() => {
     // floor.receiveShadow = true;
     scene.add(floor);
 
-    const geometry = new THREE.BoxGeometry(1, 1, 1);
-    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-    const cube = new THREE.Mesh(geometry, material);
-    scene.add(cube);
-
     renderer.setAnimationLoop(animate);
     function animate() {
-        cube.rotation.x += 0.01;
-        cube.rotation.y += 0.01;
 
         renderer.render(scene, camera);
     }
 });
+function loadGLBModel(gltfloader, scene) {
+    gltfloader.load(
+        "/assets/CORNER LEFT_BLACK_059_VEGA_SAND_DUNE", // Update the path to match your server configuration
+        (gltf) => {
+            scene.add(gltf.scene);
+        },
+        undefined,
+        (error) => {
+            console.error("An error happened", error);
+        }
+    );
+}
+
+const loader = new GLTFLoader();
+
+// Optional: Provide a DRACOLoader instance to decode compressed mesh data
+
+function loaderglb(scene) {
+    // const dracoLoader = new DRACOLoader();
+    // dracoLoader.setDecoderPath( '/examples/jsm/libs/draco/' );
+    // loader.setDRACOLoader( dracoLoader );
+    const loader = new GLTFLoader();
+    // Load a glTF resource
+    loader.load(
+        // resource URL
+        "assets/CORNER LEFT_BLACK_059_VEGA_SAND_DUNE.glb",
+        // called when the resource is loaded
+        function (gltf) {
+            scene.add(gltf.scene);
+
+            gltf.animations; // Array<THREE.AnimationClip>
+            gltf.scene; // THREE.Group
+            gltf.scenes; // Array<THREE.Group>
+            gltf.cameras; // Array<THREE.Camera>
+            gltf.asset; // Object
+        },
+        // called while loading is progressing
+        function (xhr) {
+            console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
+        },
+        // called when loading has errors
+        function (error) {
+            console.log("An error happened");
+        }
+    );
+}
 </script>
 
 <style scoped>
