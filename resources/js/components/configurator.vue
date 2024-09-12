@@ -4,7 +4,7 @@
     </div>
 </template>
 
-<script setup>
+<script lang="ts" setup>
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
