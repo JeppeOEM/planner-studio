@@ -182,7 +182,7 @@ export function dragModelListener(
                         draggableModel
                     ); // Reassign bounding box
 
-                    collidedObject = obj3d.object; // Store the collided object
+                    // collidedObject = obj3d.object; 
                 }
             }
         }
