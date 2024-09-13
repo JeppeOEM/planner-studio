@@ -105,24 +105,6 @@ onMounted(() => {
     }
 });
 
-function loadGLBModel(gltfloader, scene) {
-    gltfloader.load(
-        "/assets/CORNER LEFT_BLACK_059_VEGA_SAND_DUNE", // Update the path to match your server configuration
-        (gltf) => {
-            gltf.isDraggable = true;
-            const box = new THREE.Box3().setFromObject(glb_model)
-            glb_model.userData.boundingBox = box
-            scene.add(gltf.scene);
-        },
-        undefined,
-        (error) => {
-            console.error("An error happened", error);
-        }
-    );
-}
-
-const loader = new GLTFLoader();
-
 // Optional: Provide a DRACOLoader instance to decode compressed mesh data
 
 function loaderglb(scene) {
@@ -136,13 +118,17 @@ function loaderglb(scene) {
         "assets/CORNER LEFT_BLACK_059_VEGA_SAND_DUNE.glb",
         // called when the resource is loaded
         function (gltf) {
-            scene.add(gltf.scene);
+            const glb_model = gltf.scene;
+            glb_model.isDraggable = true;
+            const box = new THREE.Box3().setFromObject(glb_model);
+            glb_model.userData.boundingBox = box;
+            scene.add(glb_model);
 
-            gltf.animations; // Array<THREE.AnimationClip>
-            gltf.scene; // THREE.Group
-            gltf.scenes; // Array<THREE.Group>
-            gltf.cameras; // Array<THREE.Camera>
-            gltf.asset; // Object
+            // gltf.animations; // Array<THREE.AnimationClip>
+            // gltf.scene; // THREE.Group
+            // gltf.scenes; // Array<THREE.Group>
+            // gltf.cameras; // Array<THREE.Camera>
+            // gltf.asset; // Object
         },
         // called while loading is progressing
         function (xhr) {

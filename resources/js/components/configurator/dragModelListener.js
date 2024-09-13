@@ -76,6 +76,7 @@ export function dragModelListener(
                 document.body.classList.add('cursor-grab');
                 current = current.parent;
                 console.log("current", current)
+                console.log('isdraggable')
             }
             if (current.isDraggable) {
                 draggableModel = current;
