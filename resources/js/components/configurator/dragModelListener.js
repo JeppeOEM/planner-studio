@@ -66,14 +66,16 @@ export function dragModelListener(
         clickMouse.x = x
         clickMouse.y = y
         raycaster.setFromCamera(clickMouse, camera);
-
+        console.log(targetElement)
         console.log(clickMouse.x, clickMouse.y)
         const found = raycaster.intersectObjects(scene.children, true);
+        console.log(found)
         if (found.length) {
             let current = found[0].object;
             while (current.parent.parent !== null) {
                 document.body.classList.add('cursor-grab');
                 current = current.parent;
+                console.log("current", current)
             }
             if (current.isDraggable) {
                 draggableModel = current;
@@ -83,6 +85,7 @@ export function dragModelListener(
                 dotPlaced = false;
                 document.body.classList.remove('cursor-grab');
                 document.body.classList.add('cursor-grabbing');
+                console.log("isDraggable")
             }
         }
     }

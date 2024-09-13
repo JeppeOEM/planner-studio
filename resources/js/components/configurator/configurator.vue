@@ -87,6 +87,7 @@ onMounted(() => {
     const raycaster = new THREE.Raycaster();
     let clickMouse = new THREE.Vector2();
     let moveMouse = new THREE.Vector2();
+
     dragModelListener(
         raycaster,
         clickMouse,
@@ -108,6 +109,9 @@ function loadGLBModel(gltfloader, scene) {
     gltfloader.load(
         "/assets/CORNER LEFT_BLACK_059_VEGA_SAND_DUNE", // Update the path to match your server configuration
         (gltf) => {
+            gltf.isDraggable = true;
+            const box = new THREE.Box3().setFromObject(glb_model)
+            glb_model.userData.boundingBox = box
             scene.add(gltf.scene);
         },
         undefined,
