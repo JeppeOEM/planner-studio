@@ -9,8 +9,8 @@ export function dragModelListener(
     updateModel
 ) {
     let draggableModel;
-    let isColliding = false; // Flag to track collision status
-    let collidedObject; // Variable to store the collided object
+    let isColliding = false;
+    let collidedObject; 
     let cursorGrab;
     let dotPlaced = false;
     let dotcheck = true;
@@ -21,7 +21,7 @@ export function dragModelListener(
 
     let dot = document.querySelector('.center-dot');
 
-    // Add event listener to detect Shift key press/release
+    
     const selectionBar = document.querySelector(".selection-bar-wrapper")
     window.addEventListener('touchstart', function (event) {
         handleClick(event, touchCoordinate);
@@ -138,12 +138,12 @@ export function dragModelListener(
         if (draggableModel) {
             savedRotation = draggableModel.rotation.clone();
             savedPosition = draggableModel.position.clone();
-            updateModel(
-                draggableModel.userData.idString,
-                savedRotation.y,
-                savedPosition.x,
-                savedPosition.z
-            );
+            // updateModel(
+            //     draggableModel.userData.idString,
+            //     savedRotation.y,
+            //     savedPosition.x,
+            //     savedPosition.z
+            // );
         }
         draggableModel = undefined;
         isColliding = false;
@@ -166,7 +166,9 @@ export function dragModelListener(
                                 child.userData.boundingBox
                             )
                         ) {
-                            // Handle collision
+                            console.log("Collision")
+                            // isColliding = true
+                            // break;
                         }
                     }
                 }

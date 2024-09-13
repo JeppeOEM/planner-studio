@@ -1,7 +1,11 @@
 <template>
-    <h2>hej</h2>
-    <button @click="loaderglb(scene)">Load GLB Model</button>
     <canvas class="canvasDom"></canvas>
+    <button
+        class="absolute top-4 left-4 bg-blue-500 text-white py-2 px-4 rounded"
+        @click="loaderglb(scene)"
+    >
+        Load GLB Model
+    </button>
 </template>
 
 <script setup>
@@ -95,8 +99,8 @@ onMounted(() => {
         camera,
         scene,
         controls,
-        state.latestModel,
-        updateModel
+        state.latestModel
+        // updateModel
     );
 
     renderer.setAnimationLoop(animate);
@@ -113,28 +117,49 @@ function loaderglb(scene) {
     // loader.setDRACOLoader( dracoLoader );
     const loader = new GLTFLoader();
     // Load a glTF resource
+    function isColliding(glb_model) {
+        const box = new THREE.Box3().setFromObject(glb_model);
+        for (const child of scene.children) {
+            if (child.isDraggable) {
+                const childBox = new THREE.Box3().setFromObject(child);
+                if (box.intersectsBox(childBox)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
     loader.load(
-        // resource URL
         "assets/CORNER LEFT_BLACK_059_VEGA_SAND_DUNE.glb",
-        // called when the resource is loaded
         function (gltf) {
             const glb_model = gltf.scene;
             glb_model.isDraggable = true;
             const box = new THREE.Box3().setFromObject(glb_model);
             glb_model.userData.boundingBox = box;
-            scene.add(glb_model);
 
-            // gltf.animations; // Array<THREE.AnimationClip>
-            // gltf.scene; // THREE.Group
-            // gltf.scenes; // Array<THREE.Group>
-            // gltf.cameras; // Array<THREE.Camera>
-            // gltf.asset; // Object
+            const maxAttempts = 20;
+            let posX, posZ;
+            let addedToScene = false;
+
+            for (let attempts = 0; attempts < maxAttempts; attempts++) {
+                posX = Math.random() * 2 - 2; // Random value between -15 and 15
+                posZ = Math.random() * 2 - 2; // Random value between -15 and 15
+                const posY = 0;
+                glb_model.position.set(posX, posY, posZ);
+                if (!isColliding(glb_model)) {
+                    scene.add(glb_model);
+                    addedToScene = true;
+                    break;
+                }
+            }
+
+            if (!addedToScene) {
+                console.log("Failed to place the model without collision after 20 attempts.");
+            }
         },
-        // called while loading is progressing
         function (xhr) {
             console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
         },
-        // called when loading has errors
         function (error) {
             console.log("An error happened");
         }

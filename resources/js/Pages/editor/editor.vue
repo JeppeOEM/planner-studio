@@ -1,6 +1,6 @@
 <template>
     <Head title="Editor" />
-    <h1 class="text-4xl">Hej</h1>
+
     <configurator />
     <!-- <test /> -->
 </template>
