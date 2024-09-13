@@ -21,7 +21,6 @@ export function dragModelListener(
 
     let dot = document.querySelector('.center-dot');
 
-    
     const selectionBar = document.querySelector(".selection-bar-wrapper")
     window.addEventListener('touchstart', function (event) {
         handleClick(event, touchCoordinate);

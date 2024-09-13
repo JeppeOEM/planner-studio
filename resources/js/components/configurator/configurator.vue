@@ -27,7 +27,23 @@ const state = reactive({
 });
 
 let scene;
-
+    //Scene
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xf8f8f8);
+    let floor = new THREE.Mesh(
+        new THREE.BoxGeometry(1000, 0.01, 1000),
+        new THREE.MeshBasicMaterial({ color: 0xe5e5e7 })
+        // new THREE.MeshBasicMaterial({ color: 0xffffff })
+    );
+    // Floor
+    floor.isDraggable = false;
+    floor.receiveShadow = false;
+    // floor.receiveShadow = true;
+    scene.add(floor);
+    // Selection
+    const raycaster = new THREE.Raycaster();
+    let clickMouse = new THREE.Vector2();
+    let moveMouse = new THREE.Vector2();
 onMounted(() => {
     function onWindowResize() {
         camera.aspect = canvas.clientWidth / canvas.clientHeight;
@@ -39,20 +55,20 @@ onMounted(() => {
     let width = canvas.clientWidth;
     let height = canvas.clientHeight;
     let aspect = width / height;
-    scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xf8f8f8);
+
+    // Camera
     const camera = new THREE.PerspectiveCamera(75, aspect);
-    camera.position.z = 0; // Move the camera backward along the z-axis
+    camera.position.z = 0;  
     camera.position.x = -15; // Move the camera to the left along the x-axis
     camera.position.y = -15;
     camera.lookAt(0, 0, 0);
-
+    // Renderer
     const renderer = new THREE.WebGLRenderer({ canvas });
     renderer.setPixelRatio(window.devicePixelRatio); //sets same amount pixels as window
     renderer.setSize(width, height);
-
+    // Controls
     const controls = new OrbitControls(camera, renderer.domElement);
-    controls.target.set(0, 0.8, 0); //point its orbitting around
+    controls.target.set(0, 0.8, 0); //point of orbit
     controls.maxPolarAngle = Math.PI / 2.4; // Restrict the vertical rotation to 90 degrees
     controls.enableDamping = true;
     controls.dampingFactor = 0.15;
@@ -62,16 +78,6 @@ onMounted(() => {
     // Lights
     setupLights(scene);
 
-    // Floor
-    let floor = new THREE.Mesh(
-        new THREE.BoxGeometry(1000, 0.01, 1000),
-        new THREE.MeshBasicMaterial({ color: 0xe5e5e7 })
-        // new THREE.MeshBasicMaterial({ color: 0xffffff })
-    );
-    floor.isDraggable = false;
-    floor.receiveShadow = false;
-    // floor.receiveShadow = true;
-    scene.add(floor);
     function updateModel(id, rotY, x, z) {
         const proxyObject = configurationObj.models;
         let modelToUpdate;
@@ -88,9 +94,7 @@ onMounted(() => {
         }
         // this.$emit('updateConfiguration', configurationObj)
     }
-    const raycaster = new THREE.Raycaster();
-    let clickMouse = new THREE.Vector2();
-    let moveMouse = new THREE.Vector2();
+
 
     dragModelListener(
         raycaster,
