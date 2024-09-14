@@ -11,28 +11,23 @@
 <script setup>
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import * as THREE from "three";
-import { ref, onMounted, reactive } from "vue";
+import { ref, onMounted, inject } from "vue";
 import { setupLights } from "./lightSetup";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { dragModelListener } from "./dragModelListener";
 import { DragControls } from 'three/addons/controls/DragControls.js';
 
-// const props = defineProps({
 
-//     addFurniture: Object,
 
-// });
+const state = inject('editorState');
 
-const state = reactive({
-    firstModel: [],
-    latestModel: [],
-});
+const scene = new THREE.Scene();
+let loadedGlbModels = state.loadedGlbModels
 
-let camera, scene, renderer, dragControls;
-let loadedGlbModels = []
+
+let camera, renderer, dragControls;
 
 //Scene
-scene = new THREE.Scene();
 scene.background = new THREE.Color(0xf8f8f8);
 let floor = new THREE.Mesh(
     new THREE.BoxGeometry(1000, 0.01, 1000),
@@ -87,22 +82,7 @@ onMounted(() => {
 
 
 
-    function updateModel(id, rotY, x, z) {
-        const proxyObject = configurationObj.models;
-        let modelToUpdate;
 
-        const models = toRaw(proxyObject);
-        modelToUpdate = Object.keys(models)
-            .map((key) => models[key])
-            .find((obj) => obj && obj.idString === id);
-
-        if (modelToUpdate) {
-            modelToUpdate.rotation.y = rotY;
-            modelToUpdate.position.x = x;
-            modelToUpdate.position.z = z;
-        }
-        // this.$emit('updateConfiguration', configurationObj)
-    }
 
 
 
@@ -209,3 +189,19 @@ function loaderglb(scene) {
 </style>
 
 
+<!-- function updateModel(id, rotY, x, z) {
+    const proxyObject = configurationObj.models;
+    let modelToUpdate;
+
+    const models = toRaw(proxyObject);
+    modelToUpdate = Object.keys(models)
+        .map((key) => models[key])
+        .find((obj) => obj && obj.idString === id);
+
+    if (modelToUpdate) {
+        modelToUpdate.rotation.y = rotY;
+        modelToUpdate.position.x = x;
+        modelToUpdate.position.z = z;
+    }
+    // this.$emit('updateConfiguration', configurationObj)
+} -->
