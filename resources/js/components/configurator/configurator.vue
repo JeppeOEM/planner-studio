@@ -15,6 +15,8 @@ import { ref, onMounted, reactive } from "vue";
 import { setupLights } from "./lightSetup";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { dragModelListener } from "./dragModelListener";
+import { DragControls } from 'three/addons/controls/DragControls.js';
+
 // const props = defineProps({
 
 //     addFurniture: Object,
@@ -26,24 +28,25 @@ const state = reactive({
     latestModel: [],
 });
 
-let scene;
-    //Scene
-    scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xf8f8f8);
-    let floor = new THREE.Mesh(
-        new THREE.BoxGeometry(1000, 0.01, 1000),
-        new THREE.MeshBasicMaterial({ color: 0xe5e5e7 })
-        // new THREE.MeshBasicMaterial({ color: 0xffffff })
-    );
-    // Floor
-    floor.isDraggable = false;
-    floor.receiveShadow = false;
-    // floor.receiveShadow = true;
-    scene.add(floor);
-    // Selection
-    const raycaster = new THREE.Raycaster();
-    let clickMouse = new THREE.Vector2();
-    let moveMouse = new THREE.Vector2();
+let camera, scene, renderer, dragControls;
+let loadedGlbModels = []
+
+//Scene
+scene = new THREE.Scene();
+scene.background = new THREE.Color(0xf8f8f8);
+let floor = new THREE.Mesh(
+    new THREE.BoxGeometry(1000, 0.01, 1000),
+    new THREE.MeshBasicMaterial({ color: 0xe5e5e7 })
+    // new THREE.MeshBasicMaterial({ color: 0xffffff })
+);
+// Floor
+floor.isDraggable = false;
+floor.receiveShadow = false;
+// floor.receiveShadow = true;
+scene.add(floor);
+// Selection
+
+
 onMounted(() => {
     function onWindowResize() {
         camera.aspect = canvas.clientWidth / canvas.clientHeight;
@@ -57,13 +60,13 @@ onMounted(() => {
     let aspect = width / height;
 
     // Camera
-    const camera = new THREE.PerspectiveCamera(75, aspect);
-    camera.position.z = 0;  
+    camera = new THREE.PerspectiveCamera(75, aspect);
+    camera.position.z = 0;
     camera.position.x = -15; // Move the camera to the left along the x-axis
     camera.position.y = -15;
     camera.lookAt(0, 0, 0);
     // Renderer
-    const renderer = new THREE.WebGLRenderer({ canvas });
+    renderer = new THREE.WebGLRenderer({ canvas });
     renderer.setPixelRatio(window.devicePixelRatio); //sets same amount pixels as window
     renderer.setSize(width, height);
     // Controls
@@ -77,6 +80,12 @@ onMounted(() => {
 
     // Lights
     setupLights(scene);
+
+
+        // Lights
+
+
+
 
     function updateModel(id, rotY, x, z) {
         const proxyObject = configurationObj.models;
@@ -96,16 +105,6 @@ onMounted(() => {
     }
 
 
-    dragModelListener(
-        raycaster,
-        clickMouse,
-        moveMouse,
-        camera,
-        scene,
-        controls,
-        state.latestModel
-        // updateModel
-    );
 
     renderer.setAnimationLoop(animate);
     function animate() {
@@ -115,7 +114,21 @@ onMounted(() => {
 
 // Optional: Provide a DRACOLoader instance to decode compressed mesh data
 
+function onDrag(event) {
+
+};
+
+function dragEnd(){
+
+}
+
+function dragStart() {
+
+}
+
+
 function loaderglb(scene) {
+
     // const dracoLoader = new DRACOLoader();
     // dracoLoader.setDecoderPath( '/examples/jsm/libs/draco/' );
     // loader.setDRACOLoader( dracoLoader );
@@ -153,22 +166,38 @@ function loaderglb(scene) {
                 if (!isColliding(glb_model)) {
                     scene.add(glb_model);
                     addedToScene = true;
+                    loadedGlbModels.push(glb_model)
+                    dragControls = new DragControls(
+                        loadedGlbModels,
+                        camera,
+                        renderer.domElement
+                    );
+
+                    dragControls.addEventListener('drag', onDrag);
+                    dragControls.addEventListener("dragstart", dragStart);
+
+                    dragControls.addEventListener("dragend", dragEnd);
+                    console.log(loadedGlbModels)
                     break;
                 }
             }
 
             if (!addedToScene) {
-                console.log("Failed to place the model without collision after 20 attempts.");
+                console.log(
+                    "Failed to place the model without collision after 20 attempts."
+                );
             }
         },
-        function (xhr) {
-            console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
-        },
+
         function (error) {
             console.log("An error happened");
         }
     );
 }
+
+
+
+
 </script>
 
 <style scoped>
@@ -178,3 +207,5 @@ function loaderglb(scene) {
     z-index: 0;
 }
 </style>
+
+
