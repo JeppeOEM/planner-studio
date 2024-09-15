@@ -8,7 +8,7 @@
     </button>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import * as THREE from "three";
 import { ref, onMounted, inject } from "vue";
@@ -16,10 +16,11 @@ import { setupLights } from "./lightSetup";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { dragModelListener } from "./dragModelListener";
 import { DragControls } from 'three/addons/controls/DragControls.js';
+import type { IEditorState } from '@/interfaces/IEditorState';
 
 
 
-const state = inject('editorState');
+const state = inject<IEditorState>('editorState');
 
 const scene = new THREE.Scene();
 let loadedGlbModels = state.loadedGlbModels
@@ -35,7 +36,7 @@ let floor = new THREE.Mesh(
     // new THREE.MeshBasicMaterial({ color: 0xffffff })
 );
 // Floor
-floor.isDraggable = false;
+floor.userData.isDraggable = false;
 floor.receiveShadow = false;
 // floor.receiveShadow = true;
 scene.add(floor);
@@ -76,16 +77,6 @@ onMounted(() => {
     // Lights
     setupLights(scene);
 
-
-        // Lights
-
-
-
-
-
-
-
-
     renderer.setAnimationLoop(animate);
     function animate() {
         renderer.render(scene, camera);
@@ -106,18 +97,18 @@ function dragStart() {
 
 }
 
-
-function loaderglb(scene) {
+    
+function loaderglb(scene: THREE.Scene) {
 
     // const dracoLoader = new DRACOLoader();
     // dracoLoader.setDecoderPath( '/examples/jsm/libs/draco/' );
     // loader.setDRACOLoader( dracoLoader );
     const loader = new GLTFLoader();
     // Load a glTF resource
-    function isColliding(glb_model) {
+    function isColliding(glb_model: THREE.Object3D) {
         const box = new THREE.Box3().setFromObject(glb_model);
         for (const child of scene.children) {
-            if (child.isDraggable) {
+            if (child.userData.isDraggable) {
                 const childBox = new THREE.Box3().setFromObject(child);
                 if (box.intersectsBox(childBox)) {
                     return true;
@@ -130,7 +121,7 @@ function loaderglb(scene) {
         "assets/CORNER LEFT_BLACK_059_VEGA_SAND_DUNE.glb",
         function (gltf) {
             const glb_model = gltf.scene;
-            glb_model.isDraggable = true;
+            glb_model.userData.isDraggable = true;
             const box = new THREE.Box3().setFromObject(glb_model);
             glb_model.userData.boundingBox = box;
 
