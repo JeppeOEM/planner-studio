@@ -40,9 +40,6 @@ floor.userData.isDraggable = false;
 floor.receiveShadow = false;
 // floor.receiveShadow = true;
 scene.add(floor);
-// Selection
-
-
 onMounted(() => {
     function onWindowResize() {
         camera.aspect = canvas.clientWidth / canvas.clientHeight;
@@ -83,19 +80,17 @@ onMounted(() => {
     }
 });
 
-// Optional: Provide a DRACOLoader instance to decode compressed mesh data
 
-// Function to handle drag start
 function dragStart(event: THREE.Event) {
-    orbitControls.enabled = false; // Disable OrbitControls
+    orbitControls.enabled = false; 
 }
 
-// Function to handle drag end
+
 function dragEnd(event: THREE.Event) {
-    orbitControls.enabled = true; // Enable OrbitControls
+    orbitControls.enabled = true; 
 }
 
-// Function to handle dragging
+
 function onDrag(event: THREE.Event) {
     const object = event.object as THREE.Object3D;
     object.position.y = 0; // Constrain dragging to the floor plane
@@ -134,8 +129,8 @@ function loaderglb(scene: THREE.Scene) {
             let addedToScene = false;
 
             for (let attempts = 0; attempts < maxAttempts; attempts++) {
-                posX = Math.random() * 2 - 2; // Random value between -15 and 15
-                posZ = Math.random() * 2 - 2; // Random value between -15 and 15
+                posX = Math.random() * 2 - 2; 
+                posZ = Math.random() * 2 - 2; 
                 const posY = 0;
                 glb_model.position.set(posX, posY, posZ);
                 if (!isColliding(glb_model)) {
