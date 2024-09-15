@@ -26,7 +26,7 @@ const scene = new THREE.Scene();
 let loadedGlbModels = state.loadedGlbModels
 
 
-let camera, renderer, dragControls;
+let camera, renderer, dragControls, orbitControls;
 
 //Scene
 scene.background = new THREE.Color(0xf8f8f8);
@@ -66,13 +66,13 @@ onMounted(() => {
     renderer.setPixelRatio(window.devicePixelRatio); //sets same amount pixels as window
     renderer.setSize(width, height);
     // Controls
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.target.set(0, 0.8, 0); //point of orbit
-    controls.maxPolarAngle = Math.PI / 2.4; // Restrict the vertical rotation to 90 degrees
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.15;
-    controls.maxDistance = 80;
-    controls.update();
+    orbitControls = new OrbitControls(camera, renderer.domElement);
+    orbitControls.target.set(0, 0.8, 0); //point of orbit
+    orbitControls.maxPolarAngle = Math.PI / 2.4; // Restrict the vertical rotation to 90 degrees
+    orbitControls.enableDamping = true;
+    orbitControls.dampingFactor = 0.15;
+    orbitControls.maxDistance = 80;
+    orbitControls.update();
 
     // Lights
     setupLights(scene);
@@ -85,16 +85,20 @@ onMounted(() => {
 
 // Optional: Provide a DRACOLoader instance to decode compressed mesh data
 
-function onDrag(event) {
-
-};
-
-function dragEnd(){
-
+// Function to handle drag start
+function dragStart(event: THREE.Event) {
+    orbitControls.enabled = false; // Disable OrbitControls
 }
 
-function dragStart() {
+// Function to handle drag end
+function dragEnd(event: THREE.Event) {
+    orbitControls.enabled = true; // Enable OrbitControls
+}
 
+// Function to handle dragging
+function onDrag(event: THREE.Event) {
+    const object = event.object as THREE.Object3D;
+    object.position.y = 0; // Constrain dragging to the floor plane
 }
 
     
