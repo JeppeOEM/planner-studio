@@ -12,14 +12,13 @@
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import * as THREE from "three";
 import { ref, onMounted, inject, watch } from "vue";
-import type { Ref } from 'vue'
+import type { Ref } from "vue";
 import { setupLights } from "./lightSetup";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { dragModelListener } from "./dragModelListener";
-import { DragControls } from 'three/addons/controls/DragControls.js';
-import type { IEditorState } from '@/interfaces/IEditorState';
+import { DragControls } from "three/addons/controls/DragControls.js";
+import type { IEditorState } from "@/interfaces/IEditorState";
 import { FilenameKey, EditorStateKey } from "@/injection/injectionKeys";
-
 
 const editorState = inject<IEditorState>(EditorStateKey);
 
@@ -27,14 +26,12 @@ const filePath = inject<Ref<string>>(FilenameKey);
 
 // Load selected furniture
 watch(filePath, (newFilePath) => {
-    console.log('Insert this url:', newFilePath);
-    loadGlb(scene, newFilePath)
+    console.log("Insert this url:", newFilePath);
+    loadGlb(scene, newFilePath);
 });
 
-
 const scene = new THREE.Scene();
-let loadedGlbModels = editorState.loadedGlbModels
-
+let loadedGlbModels = editorState.loadedGlbModels;
 
 let camera, renderer, dragControls, orbitControls;
 
@@ -84,32 +81,39 @@ onMounted(() => {
     // Lights
     setupLights(scene);
 
+    dragControls = new DragControls(
+        loadedGlbModels,
+        camera,
+        renderer.domElement
+    );
+
+    dragControls.addEventListener("drag", onDrag);
+    dragControls.addEventListener("dragstart", dragStart);
+
+    dragControls.addEventListener("dragend", dragEnd);
+    dragControls.transformGroup = true;
+
     renderer.setAnimationLoop(animate);
     function animate() {
         renderer.render(scene, camera);
     }
 });
 
-
 function dragStart(event: THREE.Event) {
-    orbitControls.enabled = false; 
+    orbitControls.enabled = false;
 }
-
 
 function dragEnd(event: THREE.Event) {
-    orbitControls.enabled = true; 
+    orbitControls.enabled = true;
 }
 
-
 function onDrag(event: THREE.Event) {
-    console.log(event.object)
+    console.log(event.object);
     const object = event.object as THREE.Object3D;
     object.position.y = 0; // Constrain dragging to the floor plane
 }
 
-    
 function loadGlb(scene: THREE.Scene, url: string) {
-
     // const dracoLoader = new DRACOLoader();
     // dracoLoader.setDecoderPath( '/examples/jsm/libs/draco/' );
     // loader.setDRACOLoader( dracoLoader );
@@ -140,25 +144,16 @@ function loadGlb(scene: THREE.Scene, url: string) {
             let addedToScene = false;
 
             for (let attempts = 0; attempts < maxAttempts; attempts++) {
-                posX = Math.random() * 20 - 20; 
-                posZ = Math.random() * 20 - 20; 
+                posX = Math.random() * 20 - 20;
+                posZ = Math.random() * 20 - 20;
                 const posY = 0;
                 glb_model.position.set(posX, posY, posZ);
                 if (!isColliding(glb_model)) {
                     scene.add(glb_model);
                     addedToScene = true;
-                    loadedGlbModels.push(glb_model)
-                    dragControls = new DragControls(
-                        loadedGlbModels,
-                        camera,
-                        renderer.domElement
-                    );
+                    loadedGlbModels.push(glb_model);
 
-                    dragControls.addEventListener('drag', onDrag);
-                    dragControls.addEventListener("dragstart", dragStart);
-
-                    dragControls.addEventListener("dragend", dragEnd);
-                    console.log(loadedGlbModels)
+                    console.log(loadedGlbModels);
                     break;
                 }
             }
@@ -175,10 +170,6 @@ function loadGlb(scene: THREE.Scene, url: string) {
         }
     );
 }
-
-
-
-
 </script>
 
 <style scoped>
@@ -188,7 +179,6 @@ function loadGlb(scene: THREE.Scene, url: string) {
     z-index: 0;
 }
 </style>
-
 
 <!-- function updateModel(id, rotY, x, z) {
     const proxyObject = configurationObj.models;
