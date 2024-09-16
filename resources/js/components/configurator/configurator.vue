@@ -111,17 +111,17 @@ function saveToLocalStorageArray(
 }
 
 
-function dragStart(event: THREE.Event) {
+function dragStart(event: DragControls) {
     orbitControls.enabled = false;
 }
 
-function dragEnd(event: THREE.Event) {
+function dragEnd(event: DragControls) {
     
     updateLocalStorage(event.object);
 
 }
 
-function onDrag(event: THREE.Event) {
+function onDrag(event: DragControls) {
     event.object.position.y = 0; // Constrain dragging to the floor plane
 }
 
