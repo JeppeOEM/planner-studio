@@ -1,17 +1,12 @@
 <template>
     <canvas class="canvasDom"></canvas>
-    <!-- <button
-        class="absolute top-4 left-4 bg-blue-500 text-white py-2 px-4 rounded"
-        @click="loadGlb(scene)"
-    >
-        Load GLB Model
-    </button> -->
+
 </template>
 
 <script setup lang="ts">
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import * as THREE from "three";
-import { ref, onMounted, inject, watch } from "vue";
+import { ref, onUnmounted, onMounted, inject, watch } from "vue";
 import type { Ref } from "vue";
 import { setupLights } from "./lightSetup";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
@@ -20,7 +15,7 @@ import { DragControls } from "three/addons/controls/DragControls.js";
 import type { IEditorState } from "@/interfaces/IEditorState";
 import { FilenameKey, EditorStateKey } from "@/injection/injectionKeys";
 import { removeBeforeString } from "@/utils/removeBeforeString";
-
+import { createRandomString } from "@/utils/createRandomString";
 
 const editorState = inject<IEditorState>(EditorStateKey);
 
@@ -35,6 +30,7 @@ watch(filePath, (newFilePath) => {
 
 const scene = new THREE.Scene();
 let loadedGlbModels = editorState.loadedGlbModels;
+let localStorageModelData: { posX: number; posY: number; url: any; identifier: any; }[] = []
 
 let camera, renderer, dragControls, orbitControls;
 
@@ -51,6 +47,8 @@ floor.receiveShadow = false;
 // floor.receiveShadow = true;
 scene.add(floor);
 onMounted(() => {
+    let m = JSON.parse(localStorage.getItem('savedGlbModels'))
+    console.log(m)
     // function onWindowResize() {
     //     camera.aspect = canvas.clientWidth / canvas.clientHeight;
     //     camera.updateProjectionMatrix();
@@ -68,11 +66,13 @@ onMounted(() => {
     camera.position.x = -15; // Move the camera to the left along the x-axis
     camera.position.y = -15;
     camera.lookAt(0, 0, 0);
+    
     // Renderer
     renderer = new THREE.WebGLRenderer({ canvas });
     renderer.setPixelRatio(window.devicePixelRatio); //sets same amount pixels as window
     renderer.setSize(width, height);
-    // Controls
+    
+    // OrbitControls
     orbitControls = new OrbitControls(camera, renderer.domElement);
     orbitControls.target.set(0, 0.8, 0); //point of orbit
     orbitControls.maxPolarAngle = Math.PI / 2.4; // Restrict the vertical rotation to 90 degrees
@@ -83,7 +83,8 @@ onMounted(() => {
 
     // Lights
     setupLights(scene);
-
+    
+    // DragControls
     dragControls = new DragControls(
         loadedGlbModels,
         camera,
@@ -102,18 +103,57 @@ onMounted(() => {
     }
 });
 
+onUnmounted(()=>{
+
+saveToStorage(loadedGlbModels)
+})
+
+interface IGlbModel {
+    posX: number;
+    posY: number;
+    url: any;
+    identifier: any;
+}
+
+function saveToLocalStorageArray(localStorageArray: IGlbModel[], model: THREE.Object3D){
+    
+        localStorageArray.push({
+            posX: model.position.x,
+            posY: model.position.y,
+            url: model.userData.url,
+            identifier: model.userData.identifer
+        })
+
+}
+
+
+function saveToStorage(glbModels: THREE.Object3D[]){
+    
+    const models = glbModels.map((model)=>{
+        return {
+            posX: model.position.x,
+            posY: model.position.y,
+            url: model.userData.url,
+            identifier: model.userData.identifer
+        }
+    })
+        localStorage.setItem('savedGlbModels', JSON.stringify(models))
+        console.log(models)
+}
+
+
 function dragStart(event: THREE.Event) {
     orbitControls.enabled = false;
 }
 
 function dragEnd(event: THREE.Event) {
-    orbitControls.enabled = true;
+
 }
 
 function onDrag(event: THREE.Event) {
-    console.log(event.object);
-    const object = event.object as THREE.Object3D;
-    object.position.y = 0; // Constrain dragging to the floor plane
+    // console.log(event.object);
+    // const object = event.object as THREE.Object3D;
+    event.object.position.y = 0; // Constrain dragging to the floor plane
 }
 
 function loadGlb(scene: THREE.Scene, url: string) {
@@ -139,12 +179,16 @@ function loadGlb(scene: THREE.Scene, url: string) {
         function (gltf) {
             const glb_model = gltf.scene;
             glb_model.userData.isDraggable = true;
+            glb_model.userData.url = url;
+            glb_model.userData.identifier = createRandomString(20);
             const box = new THREE.Box3().setFromObject(glb_model);
             glb_model.userData.boundingBox = box;
 
             const maxAttempts = 20;
             let posX, posZ;
             let addedToScene = false;
+
+
 
             for (let attempts = 0; attempts < maxAttempts; attempts++) {
                 posX = Math.random() * 20 - 20;
@@ -155,9 +199,8 @@ function loadGlb(scene: THREE.Scene, url: string) {
                     scene.add(glb_model);
                     addedToScene = true;
                     loadedGlbModels.push(glb_model);
-
                     console.log(loadedGlbModels);
-                    break;
+                    saveToLocalStorageArray(glb_model)                   // saveToStorage(loadedGlbModels)
                 }
             }
 
@@ -165,12 +208,9 @@ function loadGlb(scene: THREE.Scene, url: string) {
                 console.log(
                     "Failed to place the model without collision after 20 attempts."
                 );
-            }
-        },
+            }            
 
-        function (error) {
-            console.log("An error happened");
-        }
+        },
     );
 }
 </script>

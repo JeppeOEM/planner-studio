@@ -38,6 +38,11 @@ const filePath = ref<string>('')
 
 provide(FilenameKey, filePath);
 
+
+let modelsFromStorage = JSON.parse(localStorage.getItem('loadedGlbModels'))
+
+modelsFromStorage ?? [] 
+
 const state = reactive<IEditorState>({
     loadedGlbModels: [],
     configuration: {
