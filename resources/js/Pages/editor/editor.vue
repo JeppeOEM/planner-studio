@@ -34,9 +34,9 @@ const togglePanel = () => {
 };
 const props = defineProps<{ components: IComponent[] }>();
 
-const filename = ref<string>('')
+const filePath = ref<string>('')
 
-provide(FilenameKey, filename);
+provide(FilenameKey, filePath);
 
 const state = reactive<IEditorState>({
     loadedGlbModels: [],

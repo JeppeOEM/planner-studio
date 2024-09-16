@@ -1,27 +1,36 @@
 <template>
     <canvas class="canvasDom"></canvas>
-    <button
+    <!-- <button
         class="absolute top-4 left-4 bg-blue-500 text-white py-2 px-4 rounded"
-        @click="loaderglb(scene)"
+        @click="loadGlb(scene)"
     >
         Load GLB Model
-    </button>
+    </button> -->
 </template>
 
 <script setup lang="ts">
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import * as THREE from "three";
-import { ref, onMounted, inject } from "vue";
+import { ref, onMounted, inject, watch } from "vue";
+import type { Ref } from 'vue'
 import { setupLights } from "./lightSetup";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { dragModelListener } from "./dragModelListener";
 import { DragControls } from 'three/addons/controls/DragControls.js';
 import type { IEditorState } from '@/interfaces/IEditorState';
-
 import { FilenameKey, EditorStateKey } from "@/injection/injectionKeys";
 
 
 const editorState = inject<IEditorState>(EditorStateKey);
+
+const filePath = inject<Ref<string>>(FilenameKey);
+
+// Load selected furniture
+watch(filePath, (newFilePath) => {
+    console.log('Insert this url:', newFilePath);
+    loadGlb(scene, newFilePath)
+});
+
 
 const scene = new THREE.Scene();
 let loadedGlbModels = editorState.loadedGlbModels
@@ -99,7 +108,7 @@ function onDrag(event: THREE.Event) {
 }
 
     
-function loaderglb(scene: THREE.Scene) {
+function loadGlb(scene: THREE.Scene, url: string) {
 
     // const dracoLoader = new DRACOLoader();
     // dracoLoader.setDecoderPath( '/examples/jsm/libs/draco/' );
@@ -119,7 +128,7 @@ function loaderglb(scene: THREE.Scene) {
         return false;
     }
     loader.load(
-        "assets/CORNER LEFT_BLACK_059_VEGA_SAND_DUNE.glb",
+        url,
         function (gltf) {
             const glb_model = gltf.scene;
             glb_model.userData.isDraggable = true;
@@ -131,8 +140,8 @@ function loaderglb(scene: THREE.Scene) {
             let addedToScene = false;
 
             for (let attempts = 0; attempts < maxAttempts; attempts++) {
-                posX = Math.random() * 2 - 2; 
-                posZ = Math.random() * 2 - 2; 
+                posX = Math.random() * 20 - 20; 
+                posZ = Math.random() * 20 - 20; 
                 const posY = 0;
                 glb_model.position.set(posX, posY, posZ);
                 if (!isColliding(glb_model)) {

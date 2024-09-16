@@ -14,8 +14,8 @@
                     >
                         Close Panel
                     </button>
-                </div>
-                <div class="grid grid-cols-2 gap-4 p-4">
+                  </div>  
+                <div class="grid grid-cols-2 gap-4 p-4 cursor-pointer">
                     <div
                         v-for="component in components"
                         :key="component.id"
@@ -43,7 +43,6 @@ const props = defineProps<{ components: IComponent[]; isOpen: boolean }>();
 const filename = inject<Ref<string>>(FilenameKey);
 
 function setFilenameToload(selectedFilename: string){
-  console.log(selectedFilename)
   filename.value = selectedFilename;
 }
 
