@@ -131,14 +131,16 @@ function onDrag(event: DragControls) {
 }
 
 function updateLocalStorage(draggedModel: THREE.Object3D) {
+    console.log(draggedModel, "draggedModel")
     const identifier = draggedModel.userData.identifer;
     const savedModels = JSON.parse(localStorage.getItem("savedGlbModels"));
     const model = savedModels.find(
         (model: any) => model.identifier === identifier
     );
+    console.log(model)
     if (model) {
         console.log(model);
-        model.postion.y = draggedModel.position.y;
+        model.position.z = draggedModel.position.z;
         model.position.x = draggedModel.position.x;
         model.position.z = 0;
         localStorage.setItem("canvasData", JSON.stringify(localStorageData));
