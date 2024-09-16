@@ -41,11 +41,11 @@ floor.receiveShadow = false;
 // floor.receiveShadow = true;
 scene.add(floor);
 onMounted(() => {
-    function onWindowResize() {
-        camera.aspect = canvas.clientWidth / canvas.clientHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(canvas.clientWidth, canvas.clientHeight);
-    }
+    // function onWindowResize() {
+    //     camera.aspect = canvas.clientWidth / canvas.clientHeight;
+    //     camera.updateProjectionMatrix();
+    //     renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+    // }
 
     const canvas = document.querySelector(".canvasDom");
     let width = canvas.clientWidth;
@@ -92,6 +92,7 @@ function dragEnd(event: THREE.Event) {
 
 
 function onDrag(event: THREE.Event) {
+    console.log(event.object)
     const object = event.object as THREE.Object3D;
     object.position.y = 0; // Constrain dragging to the floor plane
 }

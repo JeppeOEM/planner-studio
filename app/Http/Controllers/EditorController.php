@@ -11,7 +11,7 @@ class EditorController extends Controller
     
     public function index() : Response
     {
-        $components = Component::all();
+        $components = Component::all()->makeHidden(['created_at', 'updated_at']);
     
         return inertia('editor/editor', [
             'components' => $components
