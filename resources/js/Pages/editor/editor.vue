@@ -1,4 +1,4 @@
-<template>
+  <template>
     <Head title="Editor" />
 
     <configurator />
@@ -23,16 +23,20 @@ import { ref, reactive, provide } from "vue";
 import * as THREE from "three";
 import type { IEditorState } from "@/interfaces/IEditorState";
 import type { IComponent } from "@/interfaces/IComponent";
+import { FilenameKey, EditorStateKey } from "@/injection/injectionKeys";
+
+
 const isOpen = ref(true);
+
 
 const togglePanel = () => {
     isOpen.value = !isOpen.value;
 };
-
 const props = defineProps<{ components: IComponent[] }>();
 
-const componentFileName = ref("");
-provide("filename", componentFileName);
+const filename = ref<string>('')
+
+provide(FilenameKey, filename);
 
 const state = reactive<IEditorState>({
     loadedGlbModels: [],
@@ -44,5 +48,5 @@ const state = reactive<IEditorState>({
 
 console.log(props.components);
 
-provide("editorState", state);
+provide(EditorStateKey, state);
 </script>

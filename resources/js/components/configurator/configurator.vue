@@ -18,12 +18,13 @@ import { dragModelListener } from "./dragModelListener";
 import { DragControls } from 'three/addons/controls/DragControls.js';
 import type { IEditorState } from '@/interfaces/IEditorState';
 
+import { FilenameKey, EditorStateKey } from "@/injection/injectionKeys";
 
 
-const state = inject<IEditorState>('editorState');
+const editorState = inject<IEditorState>(EditorStateKey);
 
 const scene = new THREE.Scene();
-let loadedGlbModels = state.loadedGlbModels
+let loadedGlbModels = editorState.loadedGlbModels
 
 
 let camera, renderer, dragControls, orbitControls;
