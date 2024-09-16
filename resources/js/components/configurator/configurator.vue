@@ -19,6 +19,8 @@ import { dragModelListener } from "./dragModelListener";
 import { DragControls } from "three/addons/controls/DragControls.js";
 import type { IEditorState } from "@/interfaces/IEditorState";
 import { FilenameKey, EditorStateKey } from "@/injection/injectionKeys";
+import { removeBeforeString } from "@/utils/removeBeforeString";
+
 
 const editorState = inject<IEditorState>(EditorStateKey);
 
@@ -26,8 +28,9 @@ const filePath = inject<Ref<string>>(FilenameKey);
 
 // Load selected furniture
 watch(filePath, (newFilePath) => {
-    console.log("Insert this url:", newFilePath);
-    loadGlb(scene, newFilePath);
+    const path = removeBeforeString(newFilePath)
+    console.log("Insert this url:", path);
+    loadGlb(scene, path);
 });
 
 const scene = new THREE.Scene();
