@@ -17,13 +17,15 @@ import { createRandomString } from "@/utils/createRandomString";
 import type { IGlbData } from "@/interfaces/IGlbData";
 import { intializeScene } from "./initializeScene";
 import { loadGlb } from "./loadGlb";
+import type { ISelectedFurniture } from "@/interfaces/ISelectedFurniture";
 
 const editorState = inject<IEditorState>(EditorStateKey);
-const filePath = inject<Ref<string>>(FilenameKey);
+const filePath = inject<Ref<ISelectedFurniture>>(FilenameKey);
 
 // Load selected furniture
 watch(filePath, (newFilePath) => {
-    const path = removeBeforeString(newFilePath);
+    console.log(newFilePath)
+    const path = removeBeforeString(newFilePath.filename);
     console.log("Insert this url:", path);
     loadGlb(scene, path, loadedGlbModels, localStorageData);
 });
@@ -139,7 +141,7 @@ function onMouseClick(event: MouseEvent) {
         // Make sure object is not the floor
         if (selectedObject.userData.isDraggable != false){
 
-        const div = document.createElement("div");
+        const div = document.createElement("div"); 
         div.style.position = "absolute";
         div.style.left = `${event.clientX}px`;
         div.style.top = `${event.clientY}px`;

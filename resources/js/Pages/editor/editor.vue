@@ -24,6 +24,7 @@ import * as THREE from "three";
 import type { IEditorState } from "@/interfaces/IEditorState";
 import type { IComponent } from "@/interfaces/IComponent";
 import { FilenameKey, EditorStateKey } from "@/injection/injectionKeys";
+import type { ISelectedFurniture } from "@/interfaces/ISelectedFurniture";
 
 
 const isOpen = ref(true);
@@ -34,7 +35,7 @@ const togglePanel = () => {
 };
 const props = defineProps<{ components: IComponent[] }>();
 
-const filePath = ref<string>('')
+const filePath = ref<ISelectedFurniture>({filename:'', category: ''})
 
 provide(FilenameKey, filePath);
 

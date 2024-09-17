@@ -14,13 +14,13 @@
                     >
                         Close Panel
                     </button>
-                  </div>  
+                </div>
                 <div class="grid grid-cols-2 gap-4 p-4 cursor-pointer">
                     <div
                         v-for="component in components"
                         :key="component.id"
                         class="bg-white p-4 rounded shadow"
-                        @click="setFilenameToload(component.url)"
+                        @click="handleComponentClick(component)"
                     >
                         <h2 class="text-base font-bold">
                             {{ cleanFilename(component.filename) }}
@@ -37,13 +37,14 @@
 import { inject } from "vue";
 import type { IComponent } from "@/interfaces/IComponent";
 import { FilenameKey } from "@/injection/injectionKeys";
-import type { Ref } from 'vue'
+import type { ISelectedFurniture } from "@/interfaces/ISelectedFurniture";
+import type { Ref } from "vue";
 
 const props = defineProps<{ components: IComponent[]; isOpen: boolean }>();
-const filename = inject<Ref<string>>(FilenameKey);
+const filename = inject<Ref<ISelectedFurniture>>(FilenameKey);
 
-function setFilenameToload(selectedFilename: string){
-  filename.value = selectedFilename;
+function setFilenameToload(selectedFurniture: ISelectedFurniture) {
+    filename.value = selectedFurniture;  
 }
 
 function cleanFilename(filename: string) {
@@ -53,8 +54,16 @@ function cleanFilename(filename: string) {
         ? lastPart.slice(0, -4)
         : lastPart;
     return [...parts.slice(-3, -1), cleanedLastPart].join("_");
-};
+}
 
+function handleComponentClick(component: IComponent) {
+    const selectedFurniture: ISelectedFurniture = {
+        filename: component.filename,
+        category: component.category,
+    };
+    console.log(selectedFurniture);
+    setFilenameToload(selectedFurniture);
+}
 </script>
 
 <style scoped>
