@@ -29,14 +29,16 @@ watch(filePath, (newFilePath) => {
 
 const scene = new THREE.Scene();
 let loadedGlbModels = editorState.loadedGlbModels;
-let localStorageData: IGlbData[] = [];
+let localStorageData: IGlbData[] = JSON.parse(
+    localStorage.getItem("savedGlbModels")
+);
 
 let camera, renderer, dragControls, orbitControls;
 
 //Scene
 scene.background = new THREE.Color(0xf8f8f8);
 let floor = new THREE.Mesh(
-    new THREE.BoxGeometry(1000, 0.01, 1000),
+    new THREE.BoxGeometry(100, 0.01, 100),
     new THREE.MeshBasicMaterial({ color: 0xe5e5e7 })
     // new THREE.MeshBasicMaterial({ color: 0xffffff })
 );
@@ -46,12 +48,8 @@ floor.receiveShadow = false;
 // floor.receiveShadow = true;
 scene.add(floor);
 onMounted(() => {
-    let savedModels = JSON.parse(localStorage.getItem("savedGlbModels"));
-
-    console.log(savedModels)
-    if (savedModels){
-
-    intializeScene(scene, savedModels)
+    if (localStorageData) {
+        intializeScene(scene, localStorageData);
     }
 
     const canvas = document.querySelector(".canvasDom");
@@ -115,7 +113,8 @@ function saveToLocalStorageArray(
         url: model.userData.url,
         identifier: model.userData.identifer,
     });
-    localStorage.setItem('savedGlbModels', JSON.stringify(localStorageArray))
+    console.log(localStorageArray);
+    localStorage.setItem("savedGlbModels", JSON.stringify(localStorageArray));
 }
 
 function dragStart(event: DragControls) {
@@ -123,27 +122,37 @@ function dragStart(event: DragControls) {
 }
 
 function dragEnd(event: DragControls) {
+    // console.log("before",localStorageData);
     updateLocalStorage(event.object);
 }
 
 function onDrag(event: DragControls) {
-    event.object.position.y = 0; // Constrain dragging to the floor plane
+    event.object.position.y = 0;
+    // Constrain dragging to the floor plane
 }
 
 function updateLocalStorage(draggedModel: THREE.Object3D) {
-    console.log(draggedModel, "draggedModel")
+    console.log(draggedModel, "draggedModel");
     const identifier = draggedModel.userData.identifer;
-    const savedModels = JSON.parse(localStorage.getItem("savedGlbModels"));
-    const model = savedModels.find(
+    console.log(localStorageData);
+    const model = localStorageData.find(
         (model: any) => model.identifier === identifier
     );
-    console.log(model)
+    console.log(model, "found");
     if (model) {
-        console.log(model);
+        console.log(model.position.z, draggedModel.position.z, "Z");
+        console.log(model.position.x, draggedModel.position.x, "X");
+        console.log(
+            model,
+            "updating the model",
+            model.position.z,
+            draggedModel.position.z
+        );
         model.position.z = draggedModel.position.z;
         model.position.x = draggedModel.position.x;
-        model.position.z = 0;
-        localStorage.setItem("canvasData", JSON.stringify(localStorageData));
+        model.position.y = 0;
+        console.log(model.position.x, model.position.z);
+        localStorage.setItem("savedGlbModels", JSON.stringify(localStorageData));
     } else {
         console.log("Model not found");
     }
@@ -153,31 +162,26 @@ function intializeScene(scene: THREE.Scene, localStorageArray: IGlbData[]) {
     const loader = new GLTFLoader();
     // Load a glTF resource
 
-    localStorageArray.forEach((savedModel)=>{
+    localStorageArray.forEach((savedModel) => {
         loader.load(savedModel.url, function (gltf) {
-        const glb_model = gltf.scene;
-        glb_model.userData.isDraggable = true;
-        glb_model.userData.url = savedModel.url;
-        glb_model.userData.identifier = savedModel.identifier;
-        const box = new THREE.Box3().setFromObject(glb_model);
-        glb_model.userData.boundingBox = box;
-        const x = savedModel.position.x
-        const z = savedModel.position.z
-        const y = 0;
-        glb_model.position.set(x, y, z);
-        scene.add(glb_model);
-        loadedGlbModels.push(glb_model);
-        console.log(loadedGlbModels);
-
+            const glb_model = gltf.scene;
+            glb_model.userData.isDraggable = true;
+            glb_model.userData.url = savedModel.url;
+            glb_model.userData.identifier = savedModel.identifier;
+            const box = new THREE.Box3().setFromObject(glb_model);
+            glb_model.userData.boundingBox = box;
+            const x = savedModel.position.x;
+            const z = savedModel.position.z;
+            const y = 0;
+            glb_model.position.set(x, y, z);
+            scene.add(glb_model);
+            loadedGlbModels.push(glb_model);
+            console.log(loadedGlbModels);
+        });
     });
-
-    })
-
-
 }
 
 function loadGlb(scene: THREE.Scene, url: string) {
-
     const loader = new GLTFLoader();
     // Load a glTF resource
     function isColliding(glb_model: THREE.Object3D) {
