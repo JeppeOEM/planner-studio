@@ -19,24 +19,28 @@ import { intializeScene } from "./initializeScene";
 import { loadGlb } from "./loadGlb";
 
 const editorState = inject<IEditorState>(EditorStateKey);
-
 const filePath = inject<Ref<string>>(FilenameKey);
 
 // Load selected furniture
 watch(filePath, (newFilePath) => {
     const path = removeBeforeString(newFilePath);
     console.log("Insert this url:", path);
-    loadGlb(scene, path, loadedGlbModels, localStorageData );
+    loadGlb(scene, path, loadedGlbModels, localStorageData);
 });
 
-const scene = new THREE.Scene();
+// Scope globals
 let loadedGlbModels = editorState.loadedGlbModels;
-
 const loadedItems = JSON.parse(localStorage.getItem("savedGlbModels"));
+let localStorageData: IGlbData[] = loadedItems ? loadedItems : [];
+let rotationMenu = null
 
-let localStorageData: IGlbData[] = loadedItems ? loadedItems : []
-
+const scene = new THREE.Scene();
 let camera, renderer, dragControls, orbitControls;
+
+// Click selection
+
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
 
 //Scene
 scene.background = new THREE.Color(0xf8f8f8);
@@ -93,8 +97,9 @@ onMounted(() => {
 
     dragControls.addEventListener("drag", onDrag);
     dragControls.addEventListener("dragstart", dragStart);
-
     dragControls.addEventListener("dragend", dragEnd);
+    canvas.addEventListener("mouseup", onMouseClick);
+
     dragControls.transformGroup = true;
 
     renderer.setAnimationLoop(animate);
@@ -103,11 +108,8 @@ onMounted(() => {
     }
 });
 
-
-
 function dragStart(event: DragControls) {
     orbitControls.enabled = false;
-    
 }
 
 function dragEnd(event: DragControls) {
@@ -119,6 +121,45 @@ function dragEnd(event: DragControls) {
 function onDrag(event: DragControls) {
     event.object.position.y = 0;
     // Constrain dragging to the floor plane
+}
+
+function onMouseClick(event: MouseEvent) {
+    if (event.button !== 2) return; // Only proceed if right-click
+    console.log(mouse.x, mouse.y)
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+    raycaster.setFromCamera(mouse, camera);
+
+    const intersects = raycaster.intersectObjects(scene.children, true);
+ 
+    if (intersects.length > 0) {
+        const selectedObject = intersects[0].object;
+        console.log("Selected object:", selectedObject.userData.isDraggable);
+        // Make sure object is not the floor
+        if (selectedObject.userData.isDraggable != false){
+
+        const div = document.createElement("div");
+        div.style.position = "absolute";
+        div.style.left = `${event.clientX}px`;
+        div.style.top = `${event.clientY}px`;
+        div.style.backgroundColor = "white";
+        div.style.border = "1px solid black";
+        div.style.padding = "10px";
+        div.style.zIndex = "1000";
+
+        const button = document.createElement("button");
+        button.innerText = "Rotate";
+        button.addEventListener("click", () => {
+            selectedObject.rotation.z += Math.PI / 2; // Rotate the object by 45 degrees
+            document.body.removeChild(div); // Remove the div after clicking the button
+        });
+
+        div.appendChild(button);
+        document.body.appendChild(div);
+    }
+        event.preventDefault(); // Prevent default context menu
+    }
 }
 
 function updateLocalStorage(draggedModel: THREE.Object3D) {
@@ -142,13 +183,14 @@ function updateLocalStorage(draggedModel: THREE.Object3D) {
         model.position.x = draggedModel.position.x;
         model.position.y = 0;
         console.log(model.position.x, model.position.z);
-        localStorage.setItem("savedGlbModels", JSON.stringify(localStorageData));
+        localStorage.setItem(
+            "savedGlbModels",
+            JSON.stringify(localStorageData)
+        );
     } else {
         console.log("Model not found");
     }
 }
-
-
 </script>
 
 <style scoped>
