@@ -29,9 +29,10 @@ watch(filePath, (newFilePath) => {
 
 const scene = new THREE.Scene();
 let loadedGlbModels = editorState.loadedGlbModels;
-let localStorageData: IGlbData[] = JSON.parse(
-    localStorage.getItem("savedGlbModels")
-);
+
+const loadedItems = JSON.parse(localStorage.getItem("savedGlbModels"));
+
+let localStorageData: IGlbData[] = loadedItems ? loadedItems : []
 
 let camera, renderer, dragControls, orbitControls;
 
@@ -111,7 +112,7 @@ function saveToLocalStorageArray(
             z: model.position.z,
         },
         url: model.userData.url,
-        identifier: model.userData.identifer,
+        identifier: model.userData.identifier,
     });
     console.log(localStorageArray);
     localStorage.setItem("savedGlbModels", JSON.stringify(localStorageArray));
@@ -119,6 +120,7 @@ function saveToLocalStorageArray(
 
 function dragStart(event: DragControls) {
     orbitControls.enabled = false;
+    
 }
 
 function dragEnd(event: DragControls) {
@@ -133,7 +135,7 @@ function onDrag(event: DragControls) {
 
 function updateLocalStorage(draggedModel: THREE.Object3D) {
     console.log(draggedModel, "draggedModel");
-    const identifier = draggedModel.userData.identifer;
+    const identifier = draggedModel.userData.identifier;
     console.log(localStorageData);
     const model = localStorageData.find(
         (model: any) => model.identifier === identifier

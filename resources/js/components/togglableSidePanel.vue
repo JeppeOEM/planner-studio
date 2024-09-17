@@ -34,7 +34,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits, inject } from "vue";
+import { inject } from "vue";
 import type { IComponent } from "@/interfaces/IComponent";
 import { FilenameKey } from "@/injection/injectionKeys";
 import type { Ref } from 'vue'
