@@ -15,6 +15,8 @@ import { FilenameKey, EditorStateKey } from "@/injection/injectionKeys";
 import { removeBeforeString } from "@/utils/removeBeforeString";
 import { createRandomString } from "@/utils/createRandomString";
 import type { IGlbData } from "@/interfaces/IGlbData";
+import { intializeScene } from "./initializeScene";
+import { loadGlb } from "./loadGlb";
 
 const editorState = inject<IEditorState>(EditorStateKey);
 
@@ -24,7 +26,7 @@ const filePath = inject<Ref<string>>(FilenameKey);
 watch(filePath, (newFilePath) => {
     const path = removeBeforeString(newFilePath);
     console.log("Insert this url:", path);
-    loadGlb(scene, path);
+    loadGlb(scene, path, loadedGlbModels, localStorageData );
 });
 
 const scene = new THREE.Scene();
@@ -50,7 +52,7 @@ floor.receiveShadow = false;
 scene.add(floor);
 onMounted(() => {
     if (localStorageData) {
-        intializeScene(scene, localStorageData);
+        intializeScene(scene, localStorageData, loadedGlbModels);
     }
 
     const canvas = document.querySelector(".canvasDom");
@@ -101,22 +103,7 @@ onMounted(() => {
     }
 });
 
-function saveToLocalStorageArray(
-    localStorageArray: IGlbData[],
-    model: THREE.Object3D
-) {
-    localStorageArray.push({
-        position: {
-            x: model.position.x,
-            y: model.position.y,
-            z: model.position.z,
-        },
-        url: model.userData.url,
-        identifier: model.userData.identifier,
-    });
-    console.log(localStorageArray);
-    localStorage.setItem("savedGlbModels", JSON.stringify(localStorageArray));
-}
+
 
 function dragStart(event: DragControls) {
     orbitControls.enabled = false;
@@ -124,6 +111,7 @@ function dragStart(event: DragControls) {
 }
 
 function dragEnd(event: DragControls) {
+    orbitControls.enabled = true;
     // console.log("before",localStorageData);
     updateLocalStorage(event.object);
 }
@@ -160,77 +148,7 @@ function updateLocalStorage(draggedModel: THREE.Object3D) {
     }
 }
 
-function intializeScene(scene: THREE.Scene, localStorageArray: IGlbData[]) {
-    const loader = new GLTFLoader();
-    // Load a glTF resource
 
-    localStorageArray.forEach((savedModel) => {
-        loader.load(savedModel.url, function (gltf) {
-            const glb_model = gltf.scene;
-            glb_model.userData.isDraggable = true;
-            glb_model.userData.url = savedModel.url;
-            glb_model.userData.identifier = savedModel.identifier;
-            const box = new THREE.Box3().setFromObject(glb_model);
-            glb_model.userData.boundingBox = box;
-            const x = savedModel.position.x;
-            const z = savedModel.position.z;
-            const y = 0;
-            glb_model.position.set(x, y, z);
-            scene.add(glb_model);
-            loadedGlbModels.push(glb_model);
-            console.log(loadedGlbModels);
-        });
-    });
-}
-
-function loadGlb(scene: THREE.Scene, url: string) {
-    const loader = new GLTFLoader();
-    // Load a glTF resource
-    function isColliding(glb_model: THREE.Object3D) {
-        const box = new THREE.Box3().setFromObject(glb_model);
-        for (const child of scene.children) {
-            if (child.userData.isDraggable) {
-                const childBox = new THREE.Box3().setFromObject(child);
-                if (box.intersectsBox(childBox)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-    loader.load(url, function (gltf) {
-        const glb_model = gltf.scene;
-        glb_model.userData.isDraggable = true;
-        glb_model.userData.url = url;
-        glb_model.userData.identifier = createRandomString(20);
-        const box = new THREE.Box3().setFromObject(glb_model);
-        glb_model.userData.boundingBox = box;
-
-        const maxAttempts = 20;
-        let x, y, z;
-        let addedToScene = false;
-
-        for (let attempts = 0; attempts < maxAttempts; attempts++) {
-            x = Math.random() * 10;
-            z = Math.random() * 10;
-            y = 0;
-            glb_model.position.set(x, y, z);
-            if (!isColliding(glb_model)) {
-                scene.add(glb_model);
-                addedToScene = true;
-                loadedGlbModels.push(glb_model);
-                console.log(loadedGlbModels);
-                saveToLocalStorageArray(localStorageData, glb_model); // saveToStorage(loadedGlbModels)
-            }
-        }
-
-        if (!addedToScene) {
-            console.log(
-                "Failed to place the model without collision after 20 attempts."
-            );
-        }
-    });
-}
 </script>
 
 <style scoped>
