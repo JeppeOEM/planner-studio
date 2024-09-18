@@ -1,4 +1,4 @@
 export interface ISelectedFurniture {
-    filename: string,
+    url: string,
     category: string
 }

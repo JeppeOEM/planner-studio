@@ -18,17 +18,10 @@ import type { IGlbData } from "@/interfaces/IGlbData";
 import { intializeScene } from "./initializeScene";
 import { loadGlb } from "./loadGlb";
 import type { ISelectedFurniture } from "@/interfaces/ISelectedFurniture";
+import { calculateCoordinates } from "./calculateCoordinates";
 
 const editorState = inject<IEditorState>(EditorStateKey);
 const filePath = inject<Ref<ISelectedFurniture>>(FilenameKey);
-
-// Load selected furniture
-watch(filePath, (newFilePath) => {
-    console.log(newFilePath)
-    const path = removeBeforeString(newFilePath.filename);
-    console.log("Insert this url:", path);
-    loadGlb(scene, path, loadedGlbModels, localStorageData);
-});
 
 // Scope globals
 let loadedGlbModels = editorState.loadedGlbModels;
@@ -36,11 +29,23 @@ const loadedItems = JSON.parse(localStorage.getItem("savedGlbModels"));
 let localStorageData: IGlbData[] = loadedItems ? loadedItems : [];
 let rotationMenu = null
 
+
+// Load selected furniture
+watch(filePath, (selectedFurniture) => {
+    console.log(selectedFurniture)
+    const path = removeBeforeString(selectedFurniture.url);
+    console.log("Insert this url:", path);
+    console.log("loadeGlbModels",loadedGlbModels,"localStorageData", localStorageData)
+    // calculateCoordinates()
+//  selectedFurniture.category, position,
+    console.log(path,"the path")
+    loadGlb(scene, path,loadedGlbModels, localStorageData);
+});
 const scene = new THREE.Scene();
 let camera, renderer, dragControls, orbitControls;
 
 // Click selection
-
+//  
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 

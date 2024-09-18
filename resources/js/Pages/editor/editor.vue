@@ -35,9 +35,9 @@ const togglePanel = () => {
 };
 const props = defineProps<{ components: IComponent[] }>();
 
-const filePath = ref<ISelectedFurniture>({filename:'', category: ''})
+const selectedFurniture = ref<ISelectedFurniture>({filename:'', category: ''})
 
-provide(FilenameKey, filePath);
+provide(FilenameKey, selectedFurniture);
 
 
 let modelsFromStorage = JSON.parse(localStorage.getItem('loadedGlbModels'))

@@ -9,23 +9,13 @@ export function loadGlb(
     loadedGlbModels: THREE.Object3D[],
     localStorageData: IGlbData[]
 ) {
-    const loader = new GLTFLoader();
+    const loader = new GLTFLoader();        
     // Load a glTF resource
-    function isColliding(glb_model: THREE.Object3D) {
-        const box = new THREE.Box3().setFromObject(glb_model);
-        for (const child of scene.children) {
-            if (child.userData.isDraggable) {
-                const childBox = new THREE.Box3().setFromObject(child);
-                if (box.intersectsBox(childBox)) {
-                    return true;
-                }
-            }
-            return false;
-        }
+   
         loader.load(url, function (gltf) {
             const glb_model = gltf.scene;
             glb_model.userData.isDraggable = true;
-            glb_model.userData.url = url;
+            glb_model.userData.url = url;   
             glb_model.userData.identifier = createRandomString(20);
             const box = new THREE.Box3().setFromObject(glb_model);
             glb_model.userData.boundingBox = box;
@@ -39,7 +29,7 @@ export function loadGlb(
                 z = Math.random() * 10;
                 y = 0;
                 glb_model.position.set(x, y, z);
-                if (!isColliding(glb_model)) {
+                if (!isColliding(scene, glb_model)) {
                     scene.add(glb_model);
                     addedToScene = true;
                     loadedGlbModels.push(glb_model);
@@ -68,11 +58,23 @@ export function loadGlb(
                 url: model.userData.url,
                 identifier: model.userData.identifier,
             });
-            console.log(localStorageData);
+            console.log(localStorageData, "localStorageData saved");
             localStorage.setItem(
                 "savedGlbModels",
                 JSON.stringify(localStorageData)
             );
         }
     }
-}
+
+ function isColliding(scene: THREE.Scene, glb_model: THREE.Object3D) {
+        const box = new THREE.Box3().setFromObject(glb_model);
+        for (const child of scene.children) {
+            if (child.userData.isDraggable) {
+                const childBox = new THREE.Box3().setFromObject(child);
+                if (box.intersectsBox(childBox)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }

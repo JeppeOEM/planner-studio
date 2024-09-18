@@ -33,6 +33,8 @@
     </div>
 </template>
 
+
+
 <script setup lang="ts">
 import { inject } from "vue";
 import type { IComponent } from "@/interfaces/IComponent";
@@ -41,10 +43,12 @@ import type { ISelectedFurniture } from "@/interfaces/ISelectedFurniture";
 import type { Ref } from "vue";
 
 const props = defineProps<{ components: IComponent[]; isOpen: boolean }>();
-const filename = inject<Ref<ISelectedFurniture>>(FilenameKey);
+const selectedFurniture = inject<Ref<ISelectedFurniture>>(FilenameKey);
 
-function setFilenameToload(selectedFurniture: ISelectedFurniture) {
-    filename.value = selectedFurniture;  
+function setFileToload(newSelectedFurniture: ISelectedFurniture) {
+    if (selectedFurniture) {
+        selectedFurniture.value = newSelectedFurniture;
+    }
 }
 
 function cleanFilename(filename: string) {
@@ -57,12 +61,11 @@ function cleanFilename(filename: string) {
 }
 
 function handleComponentClick(component: IComponent) {
-    const selectedFurniture: ISelectedFurniture = {
-        filename: component.filename,
+    const selected: ISelectedFurniture = {
+        url: component.url,
         category: component.category,
     };
-    console.log(selectedFurniture);
-    setFilenameToload(selectedFurniture);
+    setFileToload(selected);
 }
 </script>
 
