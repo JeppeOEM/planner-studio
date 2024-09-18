@@ -1,5 +1,6 @@
 import type { IPosition } from "@/interfaces/IPosition";
 import type { ISelectedFurniture } from "@/interfaces/ISelectedFurniture";
+import { Position } from "@/utils/Position";
 import { Object3D, Scene } from "three";
 
 export function calculateCoordinates(
@@ -11,7 +12,7 @@ export function calculateCoordinates(
     latestAddedModel    ,
     connectionCornerLeft = false
 ): IPosition {
-    const position: IPosition = { x: 0, y: 0, z: 0 };
+    const position = new Position();
 
     if (loadedGlbModels.length === 0) {
         return position;
@@ -24,6 +25,7 @@ export function calculateCoordinates(
         }
         return position;
 
+        
         function saveLeft(model, glb_model) {
             let positionArr = [];
             const { len, width } = getModelSize(glb_model);
