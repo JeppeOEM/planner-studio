@@ -25,7 +25,7 @@ export function loadGlb(
             glb_model.userData.boundingBox = box;
 
             const maxAttempts = 20;
-            let x, y, z;
+            let x, y, z, rotY;
             let addedToScene = false;
 
             for (let attempts = 0; attempts < maxAttempts; attempts++) {
@@ -34,8 +34,11 @@ export function loadGlb(
                 // y = 0;
                     x = position.x;
                     z = position.z;
+                    y = 0;
+                    rotY = position.rotY;
 
                 glb_model.position.set(x, y, z);
+                glb_model.rotation.y = rotY;
                 if (!isColliding(scene, glb_model)) {
                     scene.add(glb_model);
                     addedToScene = true;
@@ -64,6 +67,7 @@ export function loadGlb(
                     x: model.position.x,
                     y: model.position.y,
                     z: model.position.z,
+                    rotY: model.rotation.y,
                 },
                 url: model.userData.url,
                 identifier: model.userData.identifier,

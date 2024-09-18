@@ -21,12 +21,39 @@ export function calculateCoordinates(
     if (loadedGlbModels.length > 0) {
         if (modelToInsert.category === "CHAISE RIGHT") {
             console.log("CHAISE RIGHT");
-            saveRightCorner(latestAddedModel, modelToInsert.glb_model);
+            testSaveRight(latestAddedModel, position);
         }
         return position;
 
+        function testSaveRight(glb_model: Object3D, position: IPosition) : Position {
+
+            getModelSize(glb_model);
+            
+            return position
+        }
+
+        function saveRight(model, glb_model) {
+            let sideOrder;
+            let positionArr = [];
+
+            if (modelsRight.length === 0) {
+                positionArr.push(getModelSize(firstModel[0]));
+                positionArr.push(firstModel[0].position);
+                glb_model.position.z = positionArr[0].width + positionArr[1].z;
+                sideOrder = 0;
+            } else if (modelsRight.length > 0) {
+                const latestAdded = modelsRight.slice(-1);
+                positionArr.push(getModelSize(latestAdded[0])); //width len max, min
+                positionArr.push(latestAdded[0].position); // x y z
+                glb_model.position.z = positionArr[0].width + positionArr[1].z;
+
+                sideOrder = modelsRight.length + 1;
+            }
+
+            savePosition(model, glb_model, sideOrder);
+        }
         
-        function saveLeft(model, glb_model) {
+        function saveLeft(newPosition, glb_model) {
             let positionArr = [];
             const { len, width } = getModelSize(glb_model);
             if (modelsLeft.length === 0) {
@@ -53,29 +80,9 @@ export function calculateCoordinates(
                 }
             }
 
-            savePosition(model, glb_model);
+            savePosition(newPosition, glb_model);
         }
 
-        function saveRight(model, glb_model, connector) {
-            let sideOrder;
-            let positionArr = [];
-
-            if (modelsRight.length === 0) {
-                positionArr.push(getModelSize(firstModel[0]));
-                positionArr.push(firstModel[0].position);
-                glb_model.position.z = positionArr[0].width + positionArr[1].z;
-                sideOrder = 0;
-            } else if (modelsRight.length > 0) {
-                const latestAdded = modelsRight.slice(-1);
-                positionArr.push(getModelSize(latestAdded[0])); //width len max, min
-                positionArr.push(latestAdded[0].position); // x y z
-                glb_model.position.z = positionArr[0].width + positionArr[1].z;
-
-                sideOrder = modelsRight.length + 1;
-            }
-
-            savePosition(model, glb_model, sideOrder);
-        }
 
         function getModelSize(model) {
             const maxX = model.userData.boundingBox.max.x;
