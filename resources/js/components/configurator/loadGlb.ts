@@ -43,6 +43,7 @@ export function loadGlb(
                     scene.add(glb_model);
                     addedToScene = true;
                     loadedGlbModels.push(glb_model);
+
                     console.log(loadedGlbModels);
                     saveToLocalStorageArray(localStorageData, glb_model); // saveToStorage(loadedGlbModels)
                     return glb_model;       

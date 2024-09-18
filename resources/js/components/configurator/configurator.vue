@@ -28,7 +28,8 @@ let loadedGlbModels = editorState.loadedGlbModels;
 const loadedItems = JSON.parse(localStorage.getItem("savedGlbModels"));
 let localStorageData: IGlbData[] = loadedItems ? loadedItems : [];
 let rotationMenu = null
-const lastAddedModel = loadedGlbModels[loadedGlbModels.length - 1];
+let lastAddedModel = loadedGlbModels[loadedGlbModels.length - 1];
+
 const modelsRight = []
 const modelsLeft = []
 // Load selected furniture
@@ -37,14 +38,15 @@ watch(filePath, (selectedFurniture) => {
     const path = removeBeforeString(selectedFurniture.url);
     console.log("Insert this url:", path);
     console.log("loadeGlbModels",loadedGlbModels,"localStorageData", localStorageData)
-    const postition = calculateCoordinates(loadedGlbModels, selectedFurniture, scene, modelsRight, modelsLeft, lastAddedModel);
+    const postition = calculateCoordinates(loadedGlbModels, selectedFurniture, scene, lastAddedModel);
     const category = selectedFurniture.category;
     //  selectedFurniture.category, position,
     console.log(path,"the path")    
     let latestModel = loadGlb(scene, path, postition, category,loadedGlbModels, localStorageData);
 });
 const scene = new THREE.Scene();
-let camera, renderer, dragControls, orbitControls;
+
+let camera: THREE.Camera, renderer: THREE.Renderer, dragControls: DragControls, orbitControls: OrbitControls;
 
 // Click selection
 //  
@@ -69,6 +71,9 @@ onMounted(() => {
     }
 
     const canvas = document.querySelector(".canvasDom");
+    if (!canvas) {
+        throw new Error("Canvas not found");
+    }
     let width = canvas.clientWidth;
     let height = canvas.clientHeight;
     let aspect = width / height;
@@ -117,17 +122,17 @@ onMounted(() => {
     }
 });
 
-function dragStart(event: DragControls) {
+function dragStart(event: THREE.Event & { object: THREE.Object3D }) {
     orbitControls.enabled = false;
 }
 
-function dragEnd(event: DragControls) {
+function dragEnd(event: THREE.Event & { object: THREE.Object3D }) {
     orbitControls.enabled = true;
     // console.log("before",localStorageData);
     updateLocalStorage(event.object);
 }
 
-function onDrag(event: DragControls) {
+function onDrag(event: THREE.Event & { object: THREE.Object3D }) {
     event.object.position.y = 0;
     // Constrain dragging to the floor plane
 }

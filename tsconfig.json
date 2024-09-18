@@ -7,7 +7,7 @@
 , "resources/js/components/configurator/lightSetup.ts", "resources/js/components/configurator/dragModelListener.js"  ],
   "compilerOptions": {
     "allowJs": true,
-    "strict": false,
+    "strict": true,
     "baseUrl": ".",
     "paths": {
       "@/*": ["resources/js/*"]
