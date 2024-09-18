@@ -28,18 +28,20 @@ let loadedGlbModels = editorState.loadedGlbModels;
 const loadedItems = JSON.parse(localStorage.getItem("savedGlbModels"));
 let localStorageData: IGlbData[] = loadedItems ? loadedItems : [];
 let rotationMenu = null
-
-
+const lastAddedModel = loadedGlbModels[loadedGlbModels.length - 1];
+const modelsRight = []
+const modelsLeft = []
 // Load selected furniture
 watch(filePath, (selectedFurniture) => {
     console.log(selectedFurniture)
     const path = removeBeforeString(selectedFurniture.url);
     console.log("Insert this url:", path);
     console.log("loadeGlbModels",loadedGlbModels,"localStorageData", localStorageData)
-    // calculateCoordinates()
-//  selectedFurniture.category, position,
-    console.log(path,"the path")
-    loadGlb(scene, path,loadedGlbModels, localStorageData);
+    const postition = calculateCoordinates(loadedGlbModels, selectedFurniture, scene, modelsRight, modelsLeft, lastAddedModel);
+    const category = selectedFurniture.category;
+    //  selectedFurniture.category, position,
+    console.log(path,"the path")    
+    let latestModel = loadGlb(scene, path, postition, category,loadedGlbModels, localStorageData);
 });
 const scene = new THREE.Scene();
 let camera, renderer, dragControls, orbitControls;

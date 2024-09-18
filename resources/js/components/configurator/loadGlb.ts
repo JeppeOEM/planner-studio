@@ -1,4 +1,5 @@
 import type { IGlbData } from "@/interfaces/IGlbData";
+import type { IPosition } from "@/interfaces/IPosition";
 import { createRandomString } from "@/utils/createRandomString";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
@@ -6,6 +7,8 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 export function loadGlb(
     scene: THREE.Scene,
     url: string,
+    position: IPosition,
+    category: string,
     loadedGlbModels: THREE.Object3D[],
     localStorageData: IGlbData[]
 ) {
@@ -15,6 +18,7 @@ export function loadGlb(
         loader.load(url, function (gltf) {
             const glb_model = gltf.scene;
             glb_model.userData.isDraggable = true;
+            glb_model.userData.category = category;
             glb_model.userData.url = url;   
             glb_model.userData.identifier = createRandomString(20);
             const box = new THREE.Box3().setFromObject(glb_model);
@@ -25,9 +29,12 @@ export function loadGlb(
             let addedToScene = false;
 
             for (let attempts = 0; attempts < maxAttempts; attempts++) {
-                x = Math.random() * 10;
-                z = Math.random() * 10;
-                y = 0;
+                // x = Math.random() * 10;
+                // z = Math.random() * 10;
+                // y = 0;
+                    x = position.x;
+                    z = position.z;
+
                 glb_model.position.set(x, y, z);
                 if (!isColliding(scene, glb_model)) {
                     scene.add(glb_model);
@@ -35,6 +42,7 @@ export function loadGlb(
                     loadedGlbModels.push(glb_model);
                     console.log(loadedGlbModels);
                     saveToLocalStorageArray(localStorageData, glb_model); // saveToStorage(loadedGlbModels)
+                    return glb_model;       
                 }
             }
 
@@ -44,6 +52,8 @@ export function loadGlb(
                 );
             }
         });
+
+
 
         function saveToLocalStorageArray(
             localStorageData: IGlbData[],
