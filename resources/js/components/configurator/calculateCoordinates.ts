@@ -1,3 +1,4 @@
+import type { IEditorState } from "@/interfaces/IEditorState";
 import type { IPosition } from "@/interfaces/IPosition";
 import type { ISelectedFurniture } from "@/interfaces/ISelectedFurniture";
 import { getModelSize } from "@/utils/getModelSize";
@@ -5,19 +6,19 @@ import { Position } from "@/utils/Position";
 import { Object3D, Scene } from "three";
 
 export function calculateCoordinates(
-    loadedGlbModels: Object3D[],
+    editorState: IEditorState,
     modelToInsert: ISelectedFurniture,
     scene: Scene,
-    latestAddedModel : Object3D,
+    latestAddedModel: Object3D,
     connectionCornerLeft = false
 ): IPosition | undefined {
     const position = new Position();
 
-    if (loadedGlbModels.length === 0) {
+    if (editorState.loadedGlbModels.length === 0) {
         return position;
     }
 
-    if (loadedGlbModels.length > 0) {
+    if (editorState.loadedGlbModels.length > 0) {
         if (modelToInsert.category === "CHAISE RIGHT") {
             console.log("CHAISE RIGHT");
 
@@ -26,18 +27,21 @@ export function calculateCoordinates(
         }
         return position;
 
-        function testSaveRight(latestAddedModel: Object3D, position: IPosition) : Position {
+        function testSaveRight(
+            latestAddedModel: Object3D,
+            position: IPosition
+        ): Position {
             const positionsArr = [];
 
             let lastAddedModelMetrics = getModelSize(latestAddedModel);
-            
-            // Calculate the position of the new model 
-            position.z = lastAddedModelMetrics.width + latestAddedModel.position.z;
-            console.log("oldModelMetrics", lastAddedModelMetrics);
-            console.log(position)
-            return position
-        }
 
+            // Calculate the position of the new model
+            position.z =
+                lastAddedModelMetrics.width + latestAddedModel.position.z;
+            console.log("oldModelMetrics", lastAddedModelMetrics);
+            console.log(position);
+            return position;
+        }
 
         // function savePosition(model, glb_model, sideOrder = "") {
         //     console.log(sideOrder);
@@ -75,7 +79,7 @@ export function calculateCoordinates(
 
         //     savePosition(model, glb_model, sideOrder);
         // }
-        
+
         // function saveLeft(newPosition, glb_model) {
         //     let positionArr = [];
         //     const { len, width } = getModelSize(glb_model);
@@ -106,8 +110,6 @@ export function calculateCoordinates(
         //     savePosition(newPosition, glb_model);
         // }
 
-
-        
         // function saveRightCorner(model, glb_model) {
         //     let radians = Math.PI;
         //     let positionArr = [];
@@ -149,7 +151,6 @@ export function calculateCoordinates(
 
         //     savePosition(model, glb_model);
         // }
-
 
         // function getPos() {
         //     let children = getModelsFromScene();
@@ -195,8 +196,6 @@ export function calculateCoordinates(
         //     return furthestLeftModel;
         //     // Check if model is the furthest to the left
         // }
-
-
     }
     return position;
 }

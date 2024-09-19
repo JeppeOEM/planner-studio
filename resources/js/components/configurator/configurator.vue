@@ -21,34 +21,60 @@ import type { ISelectedFurniture } from "@/interfaces/ISelectedFurniture";
 import { calculateCoordinates } from "./calculateCoordinates";
 
 const editorState = inject<IEditorState>(EditorStateKey);
-const filePath = inject<Ref<ISelectedFurniture>>(FilenameKey);
+const selectedFurnitureData = inject<Ref<ISelectedFurniture>>(FilenameKey);
 
 // Scope globals
-// let loadedGlbModels = editorState.loadedGlbModels;
-let configuration = editorState.configuration;
-const loadedItems = JSON.parse(localStorage.getItem("savedGlbModels"));
+const loadedItems = JSON.parse(localStorage.getItem("savedGlbModels") ?? "[]");
 let localStorageData: IGlbData[] = loadedItems ? loadedItems : [];
-let rotationMenu = null
+let rotationMenu = null;
 
-const modelsRight = []
-const modelsLeft = []
+const modelsRight = [];
+const modelsLeft = [];
 
-
-
-// Load selected furniture
-watch(filePath, (selectedFurniture) => {
+// dd  Load selected furniture
+watch(selectedFurnitureData!, (selectedFurniture) => {
     const path = removeBeforeString(selectedFurniture.url);
-    let lastAddedModel = editorState.loadedGlbModels[editorState.loadedGlbModels.length - 1];
-    const postition = calculateCoordinates(editorState.loadedGlbModels, selectedFurniture, scene, lastAddedModel);
-    const category = selectedFurniture.category;
-    let latestModel = loadGlb(scene, path, postition, category,editorState.loadedGlbModels, localStorageData);
+    let lastAddedModel =
+        editorState?.loadedGlbModels[editorState.loadedGlbModels.length - 1];
+    editorState?.configuration?.categories?.push(selectedFurniture.category);
+    
+         if (!editorState || !lastAddedModel) {
+            console.error("Selected furniture is undefined");
+            return;
+         }
+    
+        const positition = calculateCoordinates(
+            editorState,
+            selectedFurniture,
+            scene,
+            lastAddedModel
+        );
+
+        if (!positition) {
+            console.error("Position is undefined");
+            return;
+        }
+
+        const category = selectedFurniture.category;
+        let latestModel = loadGlb(
+            scene,
+            path,
+            positition,
+            category,
+            editorState.loadedGlbModels,
+            localStorageData
+        );
+
 });
 const scene = new THREE.Scene();
 
-let camera: THREE.Camera, renderer: THREE.Renderer, dragControls: DragControls, orbitControls: OrbitControls;
+let camera: THREE.Camera,
+    renderer: THREE.Renderer,
+    dragControls: DragControls,
+    orbitControls: OrbitControls;
 
 // Click selection
-//  
+//
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
@@ -138,39 +164,38 @@ function onDrag(event: THREE.Event & { object: THREE.Object3D }) {
 
 function onMouseClick(event: MouseEvent) {
     if (event.button !== 2) return; // Only proceed if right-click
-    console.log(mouse.x, mouse.y)
+    console.log(mouse.x, mouse.y);
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
     raycaster.setFromCamera(mouse, camera);
 
     const intersects = raycaster.intersectObjects(scene.children, true);
- 
+
     if (intersects.length > 0) {
         const selectedObject = intersects[0].object;
         console.log("Selected object:", selectedObject.userData.isDraggable);
         // Make sure object is not the floor
-        if (selectedObject.userData.isDraggable != false){
+        if (selectedObject.userData.isDraggable != false) {
+            const div = document.createElement("div");
+            div.style.position = "absolute";
+            div.style.left = `${event.clientX}px`;
+            div.style.top = `${event.clientY}px`;
+            div.style.backgroundColor = "white";
+            div.style.border = "1px solid black";
+            div.style.padding = "10px";
+            div.style.zIndex = "1000";
 
-        const div = document.createElement("div"); 
-        div.style.position = "absolute";
-        div.style.left = `${event.clientX}px`;
-        div.style.top = `${event.clientY}px`;
-        div.style.backgroundColor = "white";
-        div.style.border = "1px solid black";
-        div.style.padding = "10px";
-        div.style.zIndex = "1000";
+            const button = document.createElement("button");
+            button.innerText = "Rotate";
+            button.addEventListener("click", () => {
+                selectedObject.rotation.z += Math.PI / 2; // Rotate the object by 45 degrees
+                document.body.removeChild(div); // Remove the div after clicking the button
+            });
 
-        const button = document.createElement("button");
-        button.innerText = "Rotate";
-        button.addEventListener("click", () => {
-            selectedObject.rotation.z += Math.PI / 2; // Rotate the object by 45 degrees
-            document.body.removeChild(div); // Remove the div after clicking the button
-        });
-
-        div.appendChild(button);
-        document.body.appendChild(div);
-    }
+            div.appendChild(button);
+            document.body.appendChild(div);
+        }
         event.preventDefault(); // Prevent default context menu
     }
 }
