@@ -46,8 +46,7 @@ modelsFromStorage ?? []
 const state = reactive<IEditorState>({
     loadedGlbModels: [],
     configuration: {
-        models: [],
-        componentIds: [],
+        categories: [],
     },
 });
 
