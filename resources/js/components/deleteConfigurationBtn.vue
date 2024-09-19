@@ -17,9 +17,9 @@ function handleClick() {
     console.log(editorState.loadedGlbModels);
     editorState.loadedGlbModels = [];
     console.log(editorState.loadedGlbModels);
-    localStorage.removeItem("loadedGlbModels");
-    localStorage.setItem("loadedGlbModels", JSON.stringify([]));
-    let modelsFromStorage = JSON.parse(localStorage.getItem("loadedGlbModels"));
+    localStorage.removeItem("savedGlbModels");
+    localStorage.setItem("saveGlbModels", JSON.stringify([]));
+    let modelsFromStorage = JSON.parse(localStorage.getItem("savedGlbModels"));
     console.log(modelsFromStorage);
 }
 </script>

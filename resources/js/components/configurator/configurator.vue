@@ -36,6 +36,9 @@ const modelsLeft = []
 watch(editorState, (state) => {
     loadedGlbModels = state.loadedGlbModels;
     console.log(loadedGlbModels, "loadedGlbModels watch");
+
+    const loadedItems = JSON.parse(localStorage.getItem("savedGlbModels"));
+    console.log(loadedItems, "loadedItems");
     // localStorageData = state.configuration.models;
 });
 
