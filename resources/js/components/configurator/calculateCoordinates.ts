@@ -20,6 +20,8 @@ export function calculateCoordinates(
     if (loadedGlbModels.length > 0) {
         if (modelToInsert.category === "CHAISE RIGHT") {
             console.log("CHAISE RIGHT");
+
+            console.log(latestAddedModel, "latestAddedModel");
             return testSaveRight(latestAddedModel, position);
         }
         return position;
@@ -37,17 +39,17 @@ export function calculateCoordinates(
         }
 
 
-        function savePosition(model, glb_model, sideOrder = "") {
-            console.log(sideOrder);
-            const z = glb_model.position.z;
-            const x = glb_model.position.x;
-            const y = glb_model.position.y;
-            const rotY = glb_model.rotation.y;
-            model.position.z = z;
-            model.position.x = x;
-            model.position.y = y;
-            model.rotation.y = rotY;
-        }
+        // function savePosition(model, glb_model, sideOrder = "") {
+        //     console.log(sideOrder);
+        //     const z = glb_model.position.z;
+        //     const x = glb_model.position.x;
+        //     const y = glb_model.position.y;
+        //     const rotY = glb_model.rotation.y;
+        //     model.position.z = z;
+        //     model.position.x = x;
+        //     model.position.y = y;
+        //     model.rotation.y = rotY;
+        // }
 
         function getModelsFromScene() {
             return scene.children.filter((child) => child.userData.isDraggable);

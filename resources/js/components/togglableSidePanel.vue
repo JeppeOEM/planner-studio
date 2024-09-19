@@ -14,6 +14,8 @@
                     >
                         Close Panel
                     </button>
+
+                    <deleteConfigurationBtn></deleteConfigurationBtn>
                 </div>
                 <div class="grid grid-cols-2 gap-4 p-4 cursor-pointer">
                     <div
@@ -33,14 +35,13 @@
     </div>
 </template>
 
-
-
 <script setup lang="ts">
 import { inject } from "vue";
 import type { IComponent } from "@/interfaces/IComponent";
 import { FilenameKey } from "@/injection/injectionKeys";
 import type { ISelectedFurniture } from "@/interfaces/ISelectedFurniture";
 import type { Ref } from "vue";
+import deleteConfigurationBtn from "@/components/deleteConfigurationBtn.vue";
 
 const props = defineProps<{ components: IComponent[]; isOpen: boolean }>();
 const selectedFurniture = inject<Ref<ISelectedFurniture>>(FilenameKey);
