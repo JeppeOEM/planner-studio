@@ -10,7 +10,7 @@ export function calculateCoordinates(
     scene: Scene,
     latestAddedModel : Object3D,
     connectionCornerLeft = false
-): IPosition {
+): IPosition | undefined {
     const position = new Position();
 
     if (loadedGlbModels.length === 0) {
@@ -198,4 +198,5 @@ export function calculateCoordinates(
 
 
     }
+    return position;
 }

@@ -21,5 +21,6 @@ function handleClick() {
     localStorage.setItem("saveGlbModels", JSON.stringify([]));
     let modelsFromStorage = JSON.parse(localStorage.getItem("savedGlbModels"));
     console.log(modelsFromStorage);
+    window.location.reload();
 }
 </script>

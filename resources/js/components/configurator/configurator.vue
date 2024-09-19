@@ -24,7 +24,8 @@ const editorState = inject<IEditorState>(EditorStateKey);
 const filePath = inject<Ref<ISelectedFurniture>>(FilenameKey);
 
 // Scope globals
-let loadedGlbModels = editorState.loadedGlbModels;
+// let loadedGlbModels = editorState.loadedGlbModels;
+let configuration = editorState.configuration;
 const loadedItems = JSON.parse(localStorage.getItem("savedGlbModels"));
 let localStorageData: IGlbData[] = loadedItems ? loadedItems : [];
 let rotationMenu = null
@@ -32,23 +33,15 @@ let rotationMenu = null
 const modelsRight = []
 const modelsLeft = []
 
-// Watch for changes in to the furniture configuration
-watch(editorState, (state) => {
-    loadedGlbModels = state.loadedGlbModels;
-    console.log(loadedGlbModels, "loadedGlbModels watch");
 
-    const loadedItems = JSON.parse(localStorage.getItem("savedGlbModels"));
-    console.log(loadedItems, "loadedItems");
-    // localStorageData = state.configuration.models;
-});
 
 // Load selected furniture
 watch(filePath, (selectedFurniture) => {
     const path = removeBeforeString(selectedFurniture.url);
-    let lastAddedModel = loadedGlbModels[loadedGlbModels.length - 1];
-    const postition = calculateCoordinates(loadedGlbModels, selectedFurniture, scene, lastAddedModel);
+    let lastAddedModel = editorState.loadedGlbModels[editorState.loadedGlbModels.length - 1];
+    const postition = calculateCoordinates(editorState.loadedGlbModels, selectedFurniture, scene, lastAddedModel);
     const category = selectedFurniture.category;
-    let latestModel = loadGlb(scene, path, postition, category,loadedGlbModels, localStorageData);
+    let latestModel = loadGlb(scene, path, postition, category,editorState.loadedGlbModels, localStorageData);
 });
 const scene = new THREE.Scene();
 
@@ -73,7 +66,7 @@ floor.receiveShadow = false;
 scene.add(floor);
 onMounted(() => {
     if (localStorageData) {
-        intializeScene(scene, localStorageData, loadedGlbModels);
+        intializeScene(scene, localStorageData, editorState.loadedGlbModels);
     }
 
     const canvas = document.querySelector(".canvasDom");
@@ -110,7 +103,7 @@ onMounted(() => {
 
     // DragControls
     dragControls = new DragControls(
-        loadedGlbModels,
+        editorState.loadedGlbModels,
         camera,
         renderer.domElement
     );
